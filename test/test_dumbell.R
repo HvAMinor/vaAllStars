@@ -3,7 +3,7 @@
 if(!require(pacman))install.packages("pacman")
 devtools::install_github('HvAMinor/bbplot')
 pacman::p_load('rstudioapi','dplyr', 'tidyr', 'gapminder',
-               'ggplot2',  'ggalt',
+               'ggplot2',  'ggalt', 'eurostat',
                'forcats', 'R.utils', 'png', 'glue', 
                'grid', 'ggpubr', 'scales',
                'bbplot')
