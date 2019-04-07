@@ -19,6 +19,6 @@ gasGdpPerCapita.df %>% dplyr::filter(is.na(geo) | is.na(gdp))
 gasGdpPerCapita.df[which(gasGdpPerCapita.df$jaar %in% c(2001,2000) & gasGdpPerCapita.df$geo == 'RO'),]$gdp <- gasGdpPerCapita.df[which(gasGdpPerCapita.df$jaar == 2002 & gasGdpPerCapita.df$geo == 'RO'),]$gdp 
 gasGdpPerCapita.df %>% dplyr::filter(is.na(geo) | is.na(gdp))
 
-write.csv(gasGdpPerCapita.df, 'gasGdpPerCapita.csv')
-gasGdpPerCapita <- read.csv('gasGdpPerCapita.csv', header=TRUE, row.names='X', stringsAsFactors=FALSE)
+write.csv(gasGdpPerCapita.df, 'gasGdpCapita.csv')
+gasGdpPerCapita <- read.csv('gasGdpCapita.csv', header=TRUE, row.names='X', stringsAsFactors=FALSE)
 
