@@ -27,19 +27,18 @@ keuzejaar.min <- "2006"
 keuzejaar.max <- "2016"
 bronnen <-" Eurostat (2019) Real GDP per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/sdg_08_10 \r\n Greenhouse gas emissions per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/t2020_rd300"
 
-
-######### hieronder staan geen instellingen meer
-
 dumbbell <- gasGdpCapita %>% 
     select(geo, jaar, gas) %>% 
     spread(jaar, gas, convert=TRUE)
 dumbbell <- dumbbell %>% mutate(gap = dumbbell[,keuzejaar.max] - dumbbell[,keuzejaar.min])
+######### hieronder staan geen instellingen meer
 
 
-dumbbell.top <- dumbbell %>% arrange(desc(gap)) %>% head(top_lijst)
+dumbbell.top <- dumbbell %>% arrange(desc(gap)) %>% head(as.numeric(top_lijst))
 dumbbell.top.fname <- glue("dumbell top {top_lijst} {keuzejaar.min} - {keuzejaar.max}.png")
 
-dumbell.top.plot <- ggplot(dumbbell.top, aes(x = dumbbell.top[,keuzejaar.min], xend = dumbbell.top[,keuzejaar.min],
+dumbell.top.plot <- ggplot(dumbbell.top, aes(x = dumbbell.top[,keuzejaar.max], 
+                                             xend = dumbbell.top[,keuzejaar.min],
                                              y = reorder(geo, gap), group = geo)) + 
   geom_dumbbell(colour = "#dddddd",
                 size = 3,
@@ -47,20 +46,23 @@ dumbell.top.plot <- ggplot(dumbbell.top, aes(x = dumbbell.top[,keuzejaar.min], x
                 colour_xend = "#1380A1") +
   bbc_style()
 
-finalise_plot(plot_name = dumbell.top.plot, source = bronnen, save_filepath = dumbbell.top.fname,
+dumbbell.top.final <- finalise_plot(plot_name = dumbell.top.plot, source = bronnen, save_filepath = dumbbell.top.fname,
               width_pixels = 640, height_pixels = 500, logo_image_path = "dataloog.png")
 
-dumbbell.bottom <- dumbbell %>% arrange(gap) %>% head(top_lijst)
+dumbbell.bottom <- dumbbell %>% arrange(gap) %>% head(as.numeric(top_lijst))
 dumbbell.bottom.fname <- glue("dumbell bottom {top_lijst} {keuzejaar.min} - {keuzejaar.max}.png")
-dumbell.bottom.plot <- ggplot(dumbbell.bottom, aes(x = dumbbell.bottom[,keuzejaar.min], xend = dumbbell.bottom[,keuzejaar.min],
-                                             y = reorder(geo, gap), group = geo)) + 
+dumbbell.bottom.plot <- ggplot(dumbbell.bottom, aes(x = dumbbell.bottom[,keuzejaar.max], 
+                                                    xend = dumbbell.bottom[,keuzejaar.min],
+                                                    y = reorder(geo, gap), group = geo)) + 
   geom_dumbbell(colour = "#dddddd",
                 size = 3,
                 colour_x = "#FAAB18",
                 colour_xend = "#1380A1") +
   bbc_style()
 
-finalise_plot(plot_name = dumbell.bottom.plot, source = bronnen, save_filepath = dumbbell.bottom.fname,
+dumbbell.bottom.final <- finalise_plot(plot_name = dumbbell.bottom.plot, 
+                                       source = bronnen, 
+                                       save_filepath = dumbbell.bottom.fname,
               width_pixels = 640, height_pixels = 500, logo_image_path = "dataloog.png")
 
 
