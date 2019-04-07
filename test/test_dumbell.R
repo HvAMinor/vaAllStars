@@ -4,7 +4,7 @@ if(!require(pacman))install.packages("pacman")
 devtools::install_github('HvAMinor/bbplot')
 pacman::p_load('rstudioapi','dplyr', 'tidyr', 'gapminder',
                'ggplot2',  'ggalt',
-               'forcats', 'R.utils', 'png', 
+               'forcats', 'R.utils', 'png', 'glue', 
                'grid', 'ggpubr', 'scales',
                'bbplot')
 
@@ -17,23 +17,27 @@ setwd(dirname(current_path ))
 # you can make sure you are in the right directory
 print(getwd())
 
-
 gasGdpCapita <- read.csv('gasGdpCapita.csv', row.names='X', header=TRUE, stringsAsFactors = FALSE)
-#########
 
+#########
+top_lijst <- "7"
+klassen <- "3"
 keuzejaar <- "2006"
 keuzejaar.min <- "2006"
 keuzejaar.max <- "2016"
-
 bronnen <-" Eurostat (2019) Real GDP per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/sdg_08_10 \r\n Greenhouse gas emissions per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/t2020_rd300"
-###########
+
+
+######### hieronder staan geen instellingen meer
 
 dumbbell <- gasGdpCapita %>% 
     select(geo, jaar, gas) %>% 
     spread(jaar, gas, convert=TRUE)
 dumbbell <- dumbbell %>% mutate(gap = dumbbell[,keuzejaar.max] - dumbbell[,keuzejaar.min])
 
-dumbbell.top <- dumbbell %>% arrange(desc(gap)) %>% head(10)
+
+dumbbell.top <- dumbbell %>% arrange(desc(gap)) %>% head(top_lijst)
+dumbbell.top.fname <- glue("dumbell top {top_lijst} {keuzejaar.min} - {keuzejaar.max}.png")
 
 dumbell.top.plot <- ggplot(dumbbell.top, aes(x = dumbbell.top[,keuzejaar.min], xend = dumbbell.top[,keuzejaar.min],
                                              y = reorder(geo, gap), group = geo)) + 
@@ -43,11 +47,11 @@ dumbell.top.plot <- ggplot(dumbbell.top, aes(x = dumbbell.top[,keuzejaar.min], x
                 colour_xend = "#1380A1") +
   bbc_style()
 
-finalise_plot(plot_name = dumbell.top.plot, source = bronnen, save_filepath = "dumbell top 10.png",
+finalise_plot(plot_name = dumbell.top.plot, source = bronnen, save_filepath = dumbbell.top.fname,
               width_pixels = 640, height_pixels = 500, logo_image_path = "dataloog.png")
 
-dumbbell.bottom <- dumbbell %>% arrange(gap) %>% head(10)
-
+dumbbell.bottom <- dumbbell %>% arrange(gap) %>% head(top_lijst)
+dumbbell.bottom.fname <- glue("dumbell bottom {top_lijst} {keuzejaar.min} - {keuzejaar.max}.png")
 dumbell.bottom.plot <- ggplot(dumbbell.bottom, aes(x = dumbbell.bottom[,keuzejaar.min], xend = dumbbell.bottom[,keuzejaar.min],
                                              y = reorder(geo, gap), group = geo)) + 
   geom_dumbbell(colour = "#dddddd",
@@ -56,7 +60,7 @@ dumbell.bottom.plot <- ggplot(dumbbell.bottom, aes(x = dumbbell.bottom[,keuzejaa
                 colour_xend = "#1380A1") +
   bbc_style()
 
-finalise_plot(plot_name = dumbell.bottom.plot, source = bronnen, save_filepath = "dumbell bottom 10.png",
+finalise_plot(plot_name = dumbell.bottom.plot, source = bronnen, save_filepath = dumbbell.bottom.fname,
               width_pixels = 640, height_pixels = 500, logo_image_path = "dataloog.png")
 
 
