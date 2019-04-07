@@ -2,5 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
-test/*.png
 !test/dataloog.png
+test/*.png
