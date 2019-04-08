@@ -21,10 +21,11 @@ gasGdpCapita <- read.csv('gasGdpCapita.csv', row.names='X', header=TRUE, strings
 
 #########
 top_lijst <- "7"
-klassen <- "3"
+klassen <- "5"
 keuzejaar <- "2006"
 keuzejaar.min <- "2006"
 keuzejaar.max <- "2016"
+keuzeland <- "NL"
 bronnen <-" Eurostat (2019) Real GDP per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/sdg_08_10 \r\n Eurostat (2019) Greenhouse gas emissions per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/t2020_rd300"
 
 gasGdpCapita.gemiddelde.gas.fname <- glue("gemiddelde uitstoot {klassen} welvaartsgroepen {keuzejaar.min} - {keuzejaar.max}.png")
@@ -38,6 +39,11 @@ gasGdpCapita.gemiddelde.gas <- gasGdpCapita %>%
     telling = n()
     ) %>%
   ungroup()
+gasGdpCapita.gemiddelde.gas.keuzeland <- gasGdpCapita %>% 
+  filter(jaar %in% seq(keuzejaar.min, keuzejaar.max)) %>%
+  mutate(range_gdp = cut_to_classes(gdp, n=klassen, style="quantile", decimals=0)) %>%
+  filter(geo == keuzeland)
+
 
 gasGdpCapita.gemiddelde.gdp.fname <- glue("gemiddelde gdp {klassen} uitstootgroepen {keuzejaar.min} - {keuzejaar.max}.png")
 gasGdpCapita.gemiddelde.gdp <- gasGdpCapita %>% 
@@ -50,6 +56,11 @@ gasGdpCapita.gemiddelde.gdp <- gasGdpCapita %>%
     telling = n()
     ) %>%
   ungroup()
+
+gasGdpCapita.gemiddelde.gdp.keuzeland <- gasGdpCapita %>% 
+  filter(jaar %in% seq(keuzejaar.min, keuzejaar.max)) %>%
+  mutate(range_gas = cut_to_classes(gas, n=klassen, style="quantile", decimals=0)) %>%
+  filter(geo == keuzeland)
 
 ######### hieronder staan geen instellingen meer maar de plots
 ######### 

@@ -5,10 +5,8 @@ devtools::install_github('HvAMinor/bbplot')
 pacman::p_load('rstudioapi','dplyr', 'tidyr', 'gapminder',
                'ggplot2',  'ggalt', 'eurostat',
                'forcats', 'R.utils', 'png', 'glue', 
-               'grid', 'ggpubr', 'scales',
-               'bbplot')
-
-windowsFonts("Helvetica" = windowsFont("Helvetica Light"))
+               'grid', 'ggpubr', 'scales')
+library(bbplot)
 
 # the following line is for getting the path of your current open file
 current_path <- getActiveDocumentContext()$path 
@@ -44,13 +42,21 @@ dumbell.top.plot <- ggplot(dumbbell.top, aes(x = dumbbell.top[,keuzejaar.max],
                 size = 3,
                 colour_x = "#FAAB18",
                 colour_xend = "#1380A1") +
-  bbc_style()
+  ggtitle(glue('Verandering uitstoot broeikasgassen per hoofd {keuzejaar.min} - {keuzejaar.max}')) +
+  bbc_style() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14),    # Center title position and size
+    plot.subtitle = element_text(hjust = 0.5),            # Center subtitle
+    plot.caption = element_text(hjust = 0, face = "italic")# move caption to the left
+  )
 
-dumbbell.top.final <- finalise_plot(plot_name = dumbell.top.plot, source = bronnen, save_filepath = dumbbell.top.fname,
+dumbbell.top.final <- finalise_plot(plot_name = dumbell.top.plot, source_name = bronnen, save_filepath = dumbbell.top.fname,
               width_pixels = 640, height_pixels = 500, logo_image_path = "dataloog.png")
 
 dumbbell.bottom <- dumbbell %>% arrange(gap) %>% head(as.numeric(top_lijst))
 dumbbell.bottom.fname <- glue("dumbell bottom {top_lijst} {keuzejaar.min} - {keuzejaar.max}.png")
+
+
 dumbbell.bottom.plot <- ggplot(dumbbell.bottom, aes(x = dumbbell.bottom[,keuzejaar.max], 
                                                     xend = dumbbell.bottom[,keuzejaar.min],
                                                     y = reorder(geo, gap), group = geo)) + 
@@ -58,10 +64,16 @@ dumbbell.bottom.plot <- ggplot(dumbbell.bottom, aes(x = dumbbell.bottom[,keuzeja
                 size = 3,
                 colour_x = "#FAAB18",
                 colour_xend = "#1380A1") +
-  bbc_style()
+  ggtitle(glue('Verandering uitstoot broeikasgassen per hoofd {keuzejaar.min} - {keuzejaar.max}')) +
+  bbc_style() +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 14),    # Center title position and size
+    plot.subtitle = element_text(hjust = 0.5),            # Center subtitle
+    plot.caption = element_text(hjust = 0, face = "italic")# move caption to the left
+  )
 
 dumbbell.bottom.final <- finalise_plot(plot_name = dumbbell.bottom.plot, 
-                                       source = bronnen, 
+                                       source_name = bronnen, 
                                        save_filepath = dumbbell.bottom.fname,
               width_pixels = 640, height_pixels = 500, logo_image_path = "dataloog.png")
 
