@@ -5,17 +5,28 @@ if(!require(pacman))install.packages("pacman")
 devtools::install_github('HvAMinor/bbplot')
 
 pacman::p_load('rstudioapi','dplyr', 'tidyr', 'gapminder',
-               'ggplot2',  'ggalt','eurostat',
-               'forcats', 'R.utils', 'png', 'glue', 
+               'ggplot2',  'ggalt', 'eurostat',
+               'forcats', 'R.utils', 'png', 'glue', 'countrycode', 
                'grid', 'ggpubr', 'scales')
 
+library(bbplot)
 library(shiny)
 library(shinydashboard)
-library(bbplot)
+windowsFonts("Arial" = windowsFont("Arial"))
+# the following line is for getting the path of your current open file
+current_path <- getActiveDocumentContext()$path 
+# The next line set the working directory to the relevant one:
+setwd(dirname(current_path ))
+# you can make sure you are in the right directory
+print(getwd())
 
+gasGdpCapita <- read.csv('gasGdpCapita.csv', row.names='X', header=TRUE, stringsAsFactors = FALSE) %>%
+  mutate(geo=countrycode::countrycode(geo, origin='eurostat', destination='country.name'))
+bronnen <-" Eurostat (2019) Real GDP per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/sdg_08_10 \r\n Eurostat (2019) Greenhouse gas emissions per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/t2020_rd300"
 
-
-# Run the application 
+dumbell <- gasGdpCapita %>% 
+    select(geo, jaar, gas) %>% 
+    spread(jaar, gas, convert=TRUE)
 
 ui <- dashboardPage(
   dashboardHeader(
@@ -40,9 +51,14 @@ ui <- dashboardPage(
   dashboardBody(
     fluidRow(
       box(
-        title = "Histogram", status = "primary", solidHeader = TRUE,
+        title = "Ontwikkeling broeikas uitstoot per hoofd", status = "primary", solidHeader = TRUE,
         collapsible = TRUE,
-        plotOutput("plot3", height = 250)
+        plotOutput("dumbell", height = 750)
+      ),
+      box(
+        title = "lijn", status = "primary", solidHeader = TRUE,
+        collapsible = TRUE,
+        plotOutput("lijn", height = 750)
       )
     ),
     tabItems(
@@ -59,22 +75,50 @@ ui <- dashboardPage(
 
 
 server <- function(input, output) {
-  output$hist.gdp <- renderPlot({
-    bronnen <-" Eurostat (2019) Real GDP per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/sdg_08_10 \r\n Eurostat (2019) Greenhouse gas emissions per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/t2020_rd300"
-    p <- gasGdpCapita %>% 
-      Categoriseer(input$hist.gdp.verdeling) %>%
-      filter(jaar %in% seq(2000, input$hist.gdp.slider)) %>%
-      ggplot(aes(x=cat_gdp)) +
-      geom_bar(colour="white", fill = "#1380A1", stat = "count") +
+  output$lijn <- renderPlot({
+    klassen <- as.character(input$klassen)
+    keuzejaar.min <- as.character(min(input$keuzejaren))
+    keuzejaar.max <- as.character(max(input$keuzejaren))
+    lijn.titel <- glue("gemiddelde gdp {klassen} uitstootgroepen {keuzejaar.min} - {keuzejaar.max}.png")
+    lijn.data <- gasGdpCapita %>% 
+      filter(jaar %in% seq(keuzejaar.min, keuzejaar.max)) %>%
+      mutate(range_gdp = cut_to_classes(gdp, n=klassen, style="quantile", decimals=0)) %>%
+      dplyr::select(jaar, gdp=range_gdp, gas) %>%
+      group_by(gdp, jaar) %>% 
+      summarize(
+        gas = mean(gas)
+        ) %>%
+      ungroup()
+    lijn.plot <- ggplot(lijn.data, aes(x = jaar, y = gas, colour = gdp)) +
+      geom_line(size = 1) +
       geom_hline(yintercept = 0, size = 1, colour="#333333") +
-      bbc_style() +
-      labs(title = "Verdeling bruto binnenlands product") +
-      scale_y_continuous(breaks=pretty_breaks())
-    finalise_plot(
-      plot_name = p,
-      source_name = bronnen,
-      save_filepath = gasGdpCapita.gemiddelde.gdp.fname,
-      width_pixels = 640, height_pixels = 500, logo_image_path = "dataloog.png")
+      bbc_style() + 
+      theme(legend.position = "right")
+
+      finalise_plot(plot_name = lijn.plot,
+                source_name = bronnen,
+                save_filepath = glue("lijn {keuzejaar.min} - {keuzejaar.max}.png"),
+                width_pixels = 750, height_pixels = 600, logo_image_path = "dataloog.png")
+  })
+  output$dumbell <- renderPlot({
+    keuzejaar.min <- as.character(min(input$keuzejaren))
+    keuzejaar.max <- as.character(max(input$keuzejaren))
+    dumbell.data <- dumbell %>% mutate(gap = dumbell[,keuzejaar.max] - dumbell[,keuzejaar.min])
+    dumbell.title <- glue("verandering uitstoot broeikasgassen per hoofd bevolking {keuzejaar.min} - {keuzejaar.max}")
+    dumbell.plot <- ggplot(dumbell.data, aes(x = dumbell.data[,keuzejaar.max],
+                                             xend = dumbell.data[,keuzejaar.min],
+                                             y = reorder(geo, gap), group = geo)) +
+      geom_dumbbell(colour = "#dddddd",
+                    size = 3,
+                    colour_x = "#FAAB18",
+                    colour_xend = "#1380A1") +
+      labs(title=dumbell.title) +
+      bbc_style()
+
+    finalise_plot(plot_name = dumbell.plot,
+                  source_name = bronnen,
+                  save_filepath = glue("dumbell {keuzejaar.min} - {keuzejaar.max}.png"),
+                  width_pixels = 750, height_pixels = 600, logo_image_path = "dataloog.png")
   })
 }
 

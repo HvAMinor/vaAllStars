@@ -1,11 +1,14 @@
 #This line of code installs the pacman page if you do not have it installed - 
 #if you do, it simply loads the package
 if(!require(pacman))install.packages("pacman")
+
 devtools::install_github('HvAMinor/bbplot')
+
 pacman::p_load('rstudioapi','dplyr', 'tidyr', 'gapminder',
                'ggplot2',  'ggalt', 'eurostat',
                'forcats', 'R.utils', 'png', 'glue', 
                'grid', 'ggpubr', 'scales')
+
 library(bbplot)
 
 # the following line is for getting the path of your current open file
