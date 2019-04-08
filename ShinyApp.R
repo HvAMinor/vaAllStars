@@ -73,7 +73,17 @@ ui <- dashboardPage(
                   plotOutput("dumbell", height = 750)
                   )                
               )),
-      tabItem(tabName = "geodata"),
+      tabItem(tabName = "geodata",
+              fluidRow(
+                box(title = "de geoplot", status = "primary", solidHeader = TRUE,
+                    collapsible = TRUE,
+                    plotOutput("geoplotgdp")
+                    ),
+                box(title = "de geoplot", status = "primary", solidHeader = TRUE,
+                    collapsible = TRUE,
+                    plotOutput("geoplotgas")
+                    )
+              )),
       tabItem(tabName = "histogrammen",
               fluidRow(
                 box(
@@ -81,24 +91,14 @@ ui <- dashboardPage(
                   collapsible = TRUE,
                   plotOutput("lijn", height = 750)
                   )
-                )
-              ),
-      tabItem(tabName = "kpis",
-              fluidRow(
-                box(title = "lijnplot", status = "primary", solidHeader = TRUE,
-                    collapsible = TRUE,
-                    plotOutput("geoplot", height = 750)
-                    )
-                )
-          )
+                ))
       )
     )
   )
-)
 
 
 server <- function(input, output) {
-  output$geoplot <- renderPlot({
+  output$geoplotgdp <- renderPlot({
     klassen <- as.character(input$klassen)
     keuzejaar <- as.character(input$keuzejaar)
     map_data_gas <- map_data %>%
@@ -121,6 +121,34 @@ server <- function(input, output) {
              y = "Breedtegraad") +
         bbc_style()
     finalise_plot(plot_name = map_data_gas.plot,
+            source_name = bronnen,
+            save_filepath = glue("geo {keuzejaar}.png"),
+            width_pixels = 750, height_pixels = 600, logo_image_path = "dataloog.png")
+  })
+  
+  output$geoplotgas <- renderPlot({
+    klassen <- as.character(input$klassen)
+    keuzejaar <- as.character(input$keuzejaar)
+    map_data_gdp <- map_data %>%
+      mutate(cat = cut_to_classes(x = gdp, n = klassen, style = "quantile" ))
+
+    map_data_gdp.plot <- ggplot(data = map_data_gdp) +
+        geom_sf(data = geodata_N0, fill = "gray85", alpha = 1) +
+        geom_sf(data = map_data_gdp[map_data_gdp$jaar == keuzejaar,], 
+                aes(fill = cat),
+                color = "gray40", size = 0.2) +
+        geom_sf(data = geodata_N0, color = "gray30", size = 0.703, alpha = 0) +
+        coord_sf(xlim = c(-25, 45), ylim = c(35, 72)) +
+        scale_fill_discrete_sequential(name = "<AANVULLEN>", "ag_GrnYl") +
+        theme(legend.position = "left", legend.title.align = 0) +
+        guides(fill = guide_legend(reverse = TRUE)) +
+        labs(title = paste("<AANVULLEN>"),
+             subtitle = paste("<AANVULLEN>"),
+             caption = "<AANVULLEN>",
+             x = "Lengtegraad",
+             y = "Breedtegraad") +
+        bbc_style()
+    finalise_plot(plot_name = map_data_gdp.plot,
             source_name = bronnen,
             save_filepath = glue("geo {keuzejaar}.png"),
             width_pixels = 750, height_pixels = 600, logo_image_path = "dataloog.png")
@@ -149,7 +177,7 @@ server <- function(input, output) {
       finalise_plot(plot_name = lijn.plot,
                 source_name = bronnen,
                 save_filepath = glue("lijn {keuzejaar.min} - {keuzejaar.max}.png"),
-                width_pixels = 750, height_pixels = 600, logo_image_path = "dataloog.png")
+                width_pixels = 500, height_pixels = 500, logo_image_path = "dataloog.png")
   })
   output$dumbell <- renderPlot({
     keuzejaar.min <- as.character(min(input$keuzejaren))
