@@ -36,14 +36,15 @@ dumbbell <- dumbbell %>% mutate(gap = dumbbell[,keuzejaar.max] - dumbbell[,keuze
 
 dumbbell.top <- dumbbell %>% arrange(desc(gap)) %>% head(as.numeric(top_lijst))
 dumbbell.top.fname <- glue("dumbell top {top_lijst} {keuzejaar.min} - {keuzejaar.max}.png")
-
-dumbell.top.plot <- ggplot(dumbbell.top, aes(x = dumbbell.top[,keuzejaar.max], 
+dumbbell.titel <- glue("Ontwikkeling uitstoot broeikasgassen per hoofd {keuzejaar.min} - {keuzejaar.max}")
+dumbbell.top.plot <- ggplot(dumbbell.top, aes(x = dumbbell.top[,keuzejaar.max], 
                                              xend = dumbbell.top[,keuzejaar.min],
                                              y = reorder(geo, gap), group = geo)) + 
   geom_dumbbell(colour = "#dddddd",
                 size = 3,
                 colour_x = "#FAAB18",
                 colour_xend = "#1380A1") +
+  labs(title=dumbbell.titel) + 
   bbc_style()
 
 dumbbell.top.final <- finalise_plot(plot_name = dumbell.top.plot, source = bronnen, save_filepath = dumbbell.top.fname,
@@ -58,6 +59,7 @@ dumbbell.bottom.plot <- ggplot(dumbbell.bottom, aes(x = dumbbell.bottom[,keuzeja
                 size = 3,
                 colour_x = "#FAAB18",
                 colour_xend = "#1380A1") +
+  labs(title=dumbbell.titel) + 
   bbc_style()
 
 dumbbell.bottom.final <- finalise_plot(plot_name = dumbbell.bottom.plot, 
