@@ -10,7 +10,7 @@ extrafont::loadfonts(device="win")
 
 pacman::p_load('rstudioapi','dplyr', 'tidyr', 'gapminder',
               'ggalt', 'eurostat', 'colorspace', 'forcats', 'R.utils', 'png', 'glue', 'countrycode', 
-               'grid', 'ggpubr', 'scales')
+               'grid', 'ggpubr', 'scales','ggrepel')
 
 library(ggplot2)
 library(bbplot)
@@ -52,59 +52,63 @@ ui <- dashboardPage(
   dashboardHeader(disable = TRUE),
   dashboardSidebar(
     sidebarMenu(
-      menuItem(text = "histogrammen en verdeling", tabName = "histogrammen"),
       menuItem(text = "de lijngrafieken", tabName = "lijngrafieken"),
+      menuItem(text = "histogrammen en verdeling", tabName = "histogrammen"),
       menuItem(text = "dumbell charts", tabName = "dumbells"),
       menuItem(text = "geospatiale plots", tabName = "geodata"),
+      menuItem(text = "correlatie plots", tabName = "correlatie"),
       
       sliderInput("keuzejaren", "keuzejaren", 2000, 2016, c(2006, 2016)),
-      selectInput("keuzejaar", "keuzejaar", choices = seq(2000, 2016), selected = 2006),
-      selectInput("klassen", "klassen", choices = seq(2, 8))
+      #selectInput("keuzejaar", "keuzejaar", choices = seq(2000, 2016), selected = 2006),
+      selectInput("klassen", "klassen", choices = seq(2, 8), selected=3),
+      selectInput("keuzelanden", "keuzelanden", choices = unique(gasGdpCapita$geo), multiple = TRUE, selected = c('Netherlands', 'Germany'))
       )
   ),
   dashboardBody(
     tabItems(
-      tabItem(tabName = "lijngrafieken"),
-      tabItem(tabName = "dumbells",
+      tabItem(tabName = "lijngrafieken",
               fluidRow(
                 box(
+                  title = "lijnplot", status = "primary", solidHeader = TRUE, width=12, height=552,
+                  collapsible = TRUE,
+                  plotOutput("lijn")
+                  )
+                )
+              ),
+      tabItem(tabName = "dumbells",
+              fluidRow(
+                box(width=12,
                   title = "Ontwikkeling broeikas uitstoot per hoofd", status = "primary", solidHeader = TRUE,
                   collapsible = TRUE,
-                  plotOutput("dumbell", height = 750)
+                  plotOutput("dumbell")
                   )                
               )),
       tabItem(tabName = "geodata",
               fluidRow(
-                box(title = "de geoplot", status = "primary", solidHeader = TRUE,
+                box(title = "de geoplot max", status = "primary", solidHeader = TRUE, width=4,
                     collapsible = TRUE,
-                    plotOutput("geoplotgdp")
+                    plotOutput("geoplotgdp.max")
                     ),
-                box(title = "de geoplot", status = "primary", solidHeader = TRUE,
+                box(title = "de geoplot max", status = "primary", solidHeader = TRUE, width=4,
                     collapsible = TRUE,
-                    plotOutput("geoplotgas")
+                    plotOutput("geoplotgas.max")
                     )
               )),
-      tabItem(tabName = "histogrammen",
-              fluidRow(
-                box(
-                  title = "lijnplot", status = "primary", solidHeader = TRUE,
-                  collapsible = TRUE,
-                  plotOutput("lijn", height = 750)
-                  )
-                ))
-      )
+      tabItem(tabName = "correlatie", fluidRow( box( title = "correlatie", status = "primary", solidHeader = TRUE, width=12,
+                  collapsible = TRUE, 
+                  plotOutput("correlatie"))))
     )
   )
-
+)
 
 server <- function(input, output) {
-  output$geoplotgdp <- renderPlot({
+  output$geoplotgdp.max <- renderPlot({
     klassen <- as.character(input$klassen)
-    keuzejaar <- as.character(input$keuzejaar)
+    keuzejaar <- as.character(max(input$keuzejaren))
     map_data_gas <- map_data %>%
       mutate(cat = cut_to_classes(x = gas, n = klassen, style = "quantile" ))
 
-    map_data_gas.plot <- ggplot(data = map_data_gas) +
+    ggplot(data = map_data_gas) +
         geom_sf(data = geodata_N0, fill = "gray85", alpha = 1) +
         geom_sf(data = map_data_gas[map_data_gas$jaar == keuzejaar,], 
                 aes(fill = cat),
@@ -120,19 +124,14 @@ server <- function(input, output) {
              x = "Lengtegraad",
              y = "Breedtegraad") +
         bbc_style()
-    finalise_plot(plot_name = map_data_gas.plot,
-            source_name = bronnen,
-            save_filepath = glue("geo {keuzejaar}.png"),
-            width_pixels = 750, height_pixels = 600, logo_image_path = "dataloog.png")
   })
-  
-  output$geoplotgas <- renderPlot({
+  output$geoplotgas.max <- renderPlot({
     klassen <- as.character(input$klassen)
-    keuzejaar <- as.character(input$keuzejaar)
+    keuzejaar <- as.character(max(input$keuzejaren))
     map_data_gdp <- map_data %>%
       mutate(cat = cut_to_classes(x = gdp, n = klassen, style = "quantile" ))
 
-    map_data_gdp.plot <- ggplot(data = map_data_gdp) +
+    ggplot(data = map_data_gdp) +
         geom_sf(data = geodata_N0, fill = "gray85", alpha = 1) +
         geom_sf(data = map_data_gdp[map_data_gdp$jaar == keuzejaar,], 
                 aes(fill = cat),
@@ -148,12 +147,7 @@ server <- function(input, output) {
              x = "Lengtegraad",
              y = "Breedtegraad") +
         bbc_style()
-    finalise_plot(plot_name = map_data_gdp.plot,
-            source_name = bronnen,
-            save_filepath = glue("geo {keuzejaar}.png"),
-            width_pixels = 750, height_pixels = 600, logo_image_path = "dataloog.png")
   })
-  
   output$lijn <- renderPlot({
     klassen <- as.character(input$klassen)
     keuzejaar.min <- as.character(min(input$keuzejaren))
@@ -168,16 +162,11 @@ server <- function(input, output) {
         gas = mean(gas)
         ) %>%
       ungroup()
-    lijn.plot <- ggplot(lijn.data, aes(x = jaar, y = gas, colour = gdp)) +
+    ggplot(lijn.data, aes(x = jaar, y = gas, colour = gdp)) +
       geom_line(size = 1) +
-      geom_hline(yintercept = 0, size = 1, colour="#333333") +
-      bbc_style() +
-      theme(legend.position = "right")
+      labs(x='jaren') +
+      bbc_style()
 
-      finalise_plot(plot_name = lijn.plot,
-                source_name = bronnen,
-                save_filepath = glue("lijn {keuzejaar.min} - {keuzejaar.max}.png"),
-                width_pixels = 500, height_pixels = 500, logo_image_path = "dataloog.png")
   })
   output$dumbell <- renderPlot({
     keuzejaar.min <- as.character(min(input$keuzejaren))
@@ -189,7 +178,7 @@ server <- function(input, output) {
     dumbell.broeikas.x.as <- glue("Landsnamen")
     dumbell.broeikas.y.as <- glue("Uitstoot broeikasgassen (gementen in tonnen CO2 equivalent)")
     
-    dumbell.plot <- ggplot(dumbell.data, aes(x = dumbell.data[,keuzejaar.max],
+    ggplot(dumbell.data, aes(x = dumbell.data[,keuzejaar.max],
                                              xend = dumbell.data[,keuzejaar.min],
                                              y = reorder(geo, gap), group = geo)) +
       geom_dumbbell(colour = "#dddddd",
@@ -198,11 +187,32 @@ server <- function(input, output) {
                     colour_xend = "#1380A1") +
       labs(title=dumbell.broeikas.titel) +
       bbc_style()
-
-    finalise_plot(plot_name = dumbell.plot,
-                  source_name = bronnen,
-                  save_filepath = glue("dumbell {keuzejaar.min} - {keuzejaar.max}.png"),
-                  width_pixels = 750, height_pixels = 600, logo_image_path = "dataloog.png")
+  })
+  
+  output$correlatie <- renderPlot({
+    keuzelanden <- input$keuzelanden
+    gasGdpCapita %>% 
+      filter(jaar %in% seq(as.character(min(input$keuzejaren)), as.character(max(input$keuzejaren))), geo %in% keuzelanden) %>%
+        ggplot(aes(x = gdp,
+                   y = gas,
+                   fill = geo)) +
+        
+        # Scatterplot met vorm, kleur en grootte
+        geom_point(shape = 21,
+                   color = "black",
+                   size = 1.5) +
+        
+        stat_ellipse(aes(color = geo),
+                     color = "black",
+                     geom = "polygon",
+                     level = 0.95,
+                     alpha = 0.5) +
+      
+      geom_label_repel(aes(label = jaar),
+                       size = 4,
+                       box.padding = 0.5,
+                       segment.color = "blue") +
+      bbc_style()
   })
 }
 
