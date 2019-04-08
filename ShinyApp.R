@@ -49,52 +49,48 @@ map_data <- gasGdpCapita %>%
 
 
 ui <- dashboardPage(
-  dashboardHeader(
-    title = "bruto binnenlands product tegen de uitstoot van broeikasgassen per capita"
-  ),
+  dashboardHeader(disable = TRUE),
   dashboardSidebar(
-    sidebarMenu(menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
-                
-                menuItem("Charts", tabName = "Plots", icon = icon("bar-chart-o"),
-                         menuSubItem("1D - Histogram", tabName = "Histogram", icon = icon("angle-double-right")),
-                         menuSubItem("2D - Lijngrafieken", tabName = "Lijngrafieken", icon = icon("angle-double-right")),
-                         menuSubItem("2D - Dumbell charts", tabName = "Dumbell charts", icon = icon("angle-double-right")),
-                         menuSubItem("3D - Geospatiale plots", tabName = "Geospatiale plots", icon = icon("angle-double-right"))
-                         ),
-                
-                         
-                sliderInput("keuzejaren", "keuzejaren", 2000, 2016, c(2006, 2016)),
-                selectInput("keuzejaar", "keuzejaar", choices = seq(2000, 2016), selected = 2006),
-                selectInput("klassen", "klassen", choices = seq(2, 8))
-                )
+    sidebarMenu(
+      menuItem(text = "histogrammen en verdeling", tabName = "histogrammen"),
+      menuItem(text = "de lijngrafieken", tabName = "lijngrafieken"),
+      menuItem(text = "dumbell charts", tabName = "dumbells"),
+      menuItem(text = "geospatiale plots", tabName = "geodata"),
+      
+      sliderInput("keuzejaren", "keuzejaren", 2000, 2016, c(2006, 2016)),
+      selectInput("keuzejaar", "keuzejaar", choices = seq(2000, 2016), selected = 2006),
+      selectInput("klassen", "klassen", choices = seq(2, 8))
+      )
   ),
   dashboardBody(
-    fluidRow(
-      box(
-        title = "Ontwikkeling broeikas uitstoot per hoofd", status = "primary", solidHeader = TRUE,
-        collapsible = TRUE,
-        plotOutput("dumbell", height = 750)
-      ),
-      box(
-        title = "lijnplot", status = "primary", solidHeader = TRUE,
-        collapsible = TRUE,
-        plotOutput("lijn", height = 750)
-      )
-    ),
-    fluidRow(
-      box(
-        title = "geoplot", status = "primary", solidHeader = TRUE,
-        collapsible = TRUE,
-        plotOutput("geoplot", height = 750)
-      )
-    ),
     tabItems(
-      tabItem(tabName = "dashboard",
-              h2("Dashboard tab content")
-      ),
-      
-      tabItem(tabName = "widgets",
-              h2("Widgets tab content")
+      tabItem(tabName = "lijngrafieken"),
+      tabItem(tabName = "dumbells",
+              fluidRow(
+                box(
+                  title = "Ontwikkeling broeikas uitstoot per hoofd", status = "primary", solidHeader = TRUE,
+                  collapsible = TRUE,
+                  plotOutput("dumbell", height = 750)
+                  )                
+              )),
+      tabItem(tabName = "geodata"),
+      tabItem(tabName = "histogrammen",
+              fluidRow(
+                box(
+                  title = "lijnplot", status = "primary", solidHeader = TRUE,
+                  collapsible = TRUE,
+                  plotOutput("lijn", height = 750)
+                  )
+                )
+              ),
+      tabItem(tabName = "kpis",
+              fluidRow(
+                box(title = "lijnplot", status = "primary", solidHeader = TRUE,
+                    collapsible = TRUE,
+                    plotOutput("geoplot", height = 750)
+                    )
+                )
+          )
       )
     )
   )
@@ -106,7 +102,7 @@ server <- function(input, output) {
     klassen <- as.character(input$klassen)
     keuzejaar <- as.character(input$keuzejaar)
     map_data_gas <- map_data %>%
-    mutate(cat = cut_to_classes(x = gas, n = klassen, style = "quantile" ))
+      mutate(cat = cut_to_classes(x = gas, n = klassen, style = "quantile" ))
 
     map_data_gas.plot <- ggplot(data = map_data_gas) +
         geom_sf(data = geodata_N0, fill = "gray85", alpha = 1) +
@@ -147,9 +143,7 @@ server <- function(input, output) {
     lijn.plot <- ggplot(lijn.data, aes(x = jaar, y = gas, colour = gdp)) +
       geom_line(size = 1) +
       geom_hline(yintercept = 0, size = 1, colour="#333333") +
-      bbc_style()
-      
-      # LEGENDA TITEL
+      bbc_style() +
       theme(legend.position = "right")
 
       finalise_plot(plot_name = lijn.plot,

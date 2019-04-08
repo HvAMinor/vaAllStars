@@ -101,7 +101,7 @@ ggplot(data = map_data_gas) +
 map_data_gdp <- map_data %>%
   select(-gas) %>%
   mutate(cat = cut_to_classes(x = gdp, 
-                              n = 7,
+                              n = 3,
                               style = "quantile" ))
 
 

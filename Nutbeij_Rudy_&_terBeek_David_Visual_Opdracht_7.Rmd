@@ -1,101 +1,4 @@
----
-title: "Nutbeij_Rudy_&_terBeek_David_Visual_Opdracht_7"
-author: "Rudy Nutbeij & David ter Beek"
-date: "07-04-2019"
-output: 
-        html_document: ## pdf_document 
-          theme: cerulean
-          toc: true
-          number_sections: false
-editor_options: 
-  chunk_output_type: console
----
-### Deadline
-De deadline voor deze opdracht is:
 
-* Zondag 7 april 23:29
-
-# Initialisatie
-Bij deze laatste opdracht gaan we slechts beperkt aan de slag met *R Markdown*, we zullen hoofdzakelijk gebruik maken van *Shiny*. *R Markdown* wordt alleen gebruikt om de vragen te beantwoorden, de opdrachten worden uitgewerkt in *Shiny* (uiteindelijk worden er 2 files ingeleverd (een *R Markdown* en een *Shiny* file)). *Shiny* is een interactieve (online) omgeving om dashboards te creeeren. Hiermee kunnen interactieve elementen, geintegreerd worden in grafieken, die tijdens het uitlezen 'gemanipuleerd' kunnen worden. De lezers van de grafieken kunnen hierdoor interactief aan de slag met de gepresenteerde informatie. Opdrachtgevers van de projecten, die in het komend blok bij de verschillende tracks betrokken zijn, willen vaak niet zelf gaan programmeren of zeer fundamentele analyses uitvoeren op de datasets waarin ze geinteresseerd zijn, maar wel standaard proceduceres/ analyses loslaten op de desbetreffende datasets.
-
-# Eerste stappen in Shiny
-Sommige studenten in de minor groep hebben al een keer een *Shiny* dashboard gecreeerd, voor hun zal de navolgende informatie dubbelop zijn. Om met *Shiny* aan de slag te kunnen gaan, adviseren we om de volgende [website](https://shiny.rstudio.com/)  te bestuderen. Er is een behoorlijke verscheidenheid aan cursus materiaal aanwezig om met *Shiny* van [start](https://shiny.rstudio.com/tutorial/written-tutorial/lesson1/ ) te gaan. Bestudeer hiervoor zelf het internet. Hint, maak een gezamenlijke database die een ieder via slack kan vinden (pagina met hyperlinks), waarin documentatie over *Shiny* te vinden is.
-
-### Hoofvraag
-
-Tijdens het project in de komende 10 weken, is het de bedoeling om een probleem waar een instelling bedrijf mee zit, op te lossen. Dit probleem zal als 'hoofdvraag' geformuleerd worden, in een zogeheten project plan. Bij deze laatste Visual Analytics opdracht, zal de opdracht op een zelfde wijze geformuleerd worden. 
-
-Welke relaties tussen 2 toc Eurostat dataframe (zie de data die volgt uit `toc <- get_eurostat_toc()`) thema's zijn observeerbaar, als functie van tijd en land binnen de Europese Unie? NB: beperk je tot sets van het type "dataset" en "table".
-
-# Beantwoorden van de hoofdvraag
-
-Om straks tijdens het project, gedurende de komende 10 weken de hoofdvraag te beantwoorden zijn mbv een zogeheten 'pithead' model meerdere deelvragen opgesteld. Deze kunnen nader uitgewerkt worden in subvragen, waarna hypothesis opgesteld zullen worden. Uiteindelijk worden deze hypotheses geherformuleerd in zogeheten krititsche performance indicatoren (KPI's). Bij de volgende opdrachten zullen verschillende KPI's de revue passeren, die samen de hoofdvraag gaan beantwoorden.
-
-### KPI opdrachten
-
-* Construeer een dataframe uit 2 datasets uit dezelfde of verschillende thema's (uit de Eurostat database). Voorwaarde is dat er een connectie moet zijn tussen de datasets, geen appels met peren vergelijken (voorbeeld: koppel niet de spoorweglengte data aan de fertility data). 
-
-Construeer een dashboard met:
-
-* Mogelijkheid om 1-D inspecties uit te voeren.
-* Mogelijkheid om 2-D inspecties te doen (denk zelf na over alle mogelijkheden, denk na over alle mogelijkheden, cross-datasets of binnen een gekozen dataframe).
-* Minstens een geo-spatiale visualisatie.
-* Creeer de mogelijkheid om keuze's uit te voeren, mbt landskeuze en tijd, via "widgets".
-* Besteed aandacht aan de layout en het gebruik van tabbladen (zet niet alles onder elkaar). 
-* Vermeld de bronvermeldingen vd gevonden data (en metadata van Eurostat) in een apart bronvermeldingslijst (met hyperlinks). Die opgesteld is volgens de APA standaard.
-
-### Vraag 1
-
-* Vermoed je dat er verbanden zijn tussen de datasets, hoe worden die duidelijk?
-* Lijkt er sprake van clustervorming?
-* Van welk(e) land(en) was er geen data?
-    * Hoe is dit zichtbaar in de data?
-* Geef enkele plus- en een minpunten van jouw afbeeldingen (1-D en 2-D visualisaties).
-* Beschrijf wat er gebeurd is in de data, gedurende de geprojecteerde tijd en welke trend valt er uit de informatie te halen?
-* Welke verbetering(en) stel je voor met betrekkening tot de gemaakte afbeelding van deze data?
-
-> Jouw antwoord   
-...  
-(Einde antwoord)
-
-
-
-### Vraag 2
-
-Focus je bij de volgende vragen op: 
-
-* Nederland in 2006 en daarna in 2016
-      * Wat is de toename/ afname van categorie x gedurend deze periode?
-      * In welke provincie zal dat grotendeels zijn geweest?
-* Duitsland in 2006 en daarna in 2016
-      * Wat is de toename/ afname van categorie x gedurend deze periode?
-      * In welke provincie zal dat grotendeels zijn geweest?
-* Formuleer plus-, min- en verbeterpunten van de geospatiale dataset.
-
-> Jouw antwoord   
-...  
-(Einde antwoord)
-
-
-
-
-# PACKAGES INSTALLEREN
-```{r chunk_1, echo = TRUE, warning = FALSE, message = FALSE }
-
- # This line of code installs the pacman page if you do not have it installed - 
- # if you do, it simply loads the package
-if(!require(pacman))install.packages("pacman")
-
-pacman::p_load('dplyr', 'tidyr', 'gapminder',
-               'ggplot2',  'ggalt',
-               'forcats', 'R.utils', 'png', 
-               'grid', 'ggpubr', 'scales',
-               'bbplot', 'eurostat', 'countrycode', 'devtools',
-               'shiny', 'shinydashboard', 'colorspace', 'knitr')
-
-# install.packages('devtools')
-devtools::install_github('bbc/bbplot')
-```
 
 # CSV BESTANDEN INLADEN
 ```{r chunk_2, echo = TRUE, warning = FALSE, message = FALSE }
@@ -191,7 +94,7 @@ ggplot(data = map_data_gas) +
           size = 0.703,
           alpha = 0) +
   
-  # COÖRDINATEN VAN DE MAP VERKLEINEN
+  # CO?RDINATEN VAN DE MAP VERKLEINEN
   coord_sf(xlim = c(-25, 45),
            ylim = c(35, 72)) +
   
@@ -244,7 +147,7 @@ ggplot(data = map_data_gdp) +
           size = 0.703,
           alpha = 0) +
   
-  # COÖRDINATEN VAN DE MAP VERKLEINEN
+  # CO?RDINATEN VAN DE MAP VERKLEINEN
   coord_sf(xlim = c(-25, 45),
            ylim = c(35, 72)) +
   
