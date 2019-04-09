@@ -428,7 +428,7 @@ server <- function(input, output) {
     # DUMBELL LABS
     dumbell.broeikas.titel <- glue("Ontwikkeling uitstoot broeikasgassen per hoofd bevolking")
     dumbell.broeikas.subtitel <- glue("{keuzejaar.min} - {keuzejaar.max}")
-    dumbell.broeikas.caption <- glue("Eurostat (2019) Real GDP per capita")
+    dumbell.broeikas.caption <- glue("Eurostat (2019) Greenhouse gas emissions per capita")
     dumbell.broeikas.y.as <- glue("Landsnamen")
     dumbell.broeikas.x.as <- glue("Uitstoot broeikasgassen (gemeten in tonnen CO2 equivalent per hoofd)")
     
