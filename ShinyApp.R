@@ -3,12 +3,6 @@
 if (!require(pacman))
   install.packages("pacman")
 
-devtools::install_github("HvAMinor/bbplot", upgrade = c("never"))
-pacman::p_load("extrafont")
-
-extrafont::font_import(prompt = FALSE, pattern = "*erdana*")
-extrafont::loadfonts(device = "win")
-
 #--------- 1. LIBRARIES INLADEN -------------
 pacman::p_load(
   "rstudioapi",
@@ -27,13 +21,11 @@ pacman::p_load(
   "ggpubr",
   "scales",
   "ggrepel",
-  "scales"
+  "scales",
+  "ggplot2",
+  "shiny",
+  "shinydashboard"
 )
-
-library(ggplot2)
-library(bbplot)
-library(shiny)
-library(shinydashboard)
 
 # 2. CONFIGUREREN VAN DE WORKING DIRECTORY --------------
 
@@ -151,7 +143,7 @@ ui <- dashboardPage(
               fluidRow(
                 box(
                   width = 12,
-                  title = "Ontwikkeling broeikasgas uitstoot per hoofd",
+                  title = "Ontwikkeling broeikasgas uitstoot per hoofd van de bevolking",
                   status = "primary",
                   solidHeader = TRUE,
                   collapsible = TRUE,
@@ -165,7 +157,7 @@ ui <- dashboardPage(
       tabItem(tabName = "geodata",
               fluidRow(
                 box(
-                  title = "de geoplot max",
+                  title = "de geoplot verdeling uitstoot (eindjaar)",
                   status = "primary",
                   solidHeader = TRUE,
                   width = 6,
@@ -173,7 +165,7 @@ ui <- dashboardPage(
                   plotOutput("geo_gdp_max")
                 ),
                 box(
-                  title = "de geoplot max",
+                  title = "de geoplot verdeling bbp (eindjaar)",
                   status = "primary",
                   solidHeader = TRUE,
                   width = 6,
@@ -254,10 +246,9 @@ server <- function(input, output) {
       mutate(cat = cut_to_classes(x = gas, n = klassen, style = "quantile"))
     
     # GEO GDP LABS
-    geo.gdp.titel <- glue("Gemiddeld BBP per hoofd in Europa")
-    geo.gdp.subtitel <- glue(" (grijze gebieden = geen data)")
-    geo.gdp.caption <- glue("Eurostat (2019) Real GDP per capita
-                              Eurostat (2019) Greenhouse gas emissions per capita")
+    geo.gdp.titel <- glue("Verdeling uitstoot broeikasgassen in Europa {keuzejaar}")
+    geo.gdp.subtitel <- glue("per hoofd van de bevolking")
+    geo.gdp.caption <- glue("Eurostat (2019) Greenhouse gas emissions per capita")
     geo.gdp.y.as <- glue("breedtegraad")
     geo.gdp.x.as <- glue("lengtegraad")
     
@@ -278,7 +269,7 @@ server <- function(input, output) {
       
       coord_sf(xlim = c(-25, 45), ylim = c(35, 72)) +
       
-      scale_fill_discrete_sequential(name = "Uitstoot per hoofd (CO2 equivalent)", "ag_GrnYl") +
+      scale_fill_discrete_sequential(name = "CO2 equivalent aan uitstoot in tonnen", "ag_GrnYl") +
       
       theme(legend.position = "right",
             legend.title.align = 0) +
@@ -300,10 +291,9 @@ server <- function(input, output) {
       mutate(cat = cut_to_classes(x = gdp, n = klassen, style = "quantile"))
     
     # GEO GDP LABS
-    geo.gas.titel <- glue("Gemiddelde uitstoot broeikasgassen per hoofd in Europa")
-    geo.gas.subtitel <- glue(" (grijze gebieden = geen data)")
-    geo.gas.caption <- glue("Eurostat (2019) Real GDP per capita
-                            Eurostat (2019) Greenhouse gas emissions per capita")
+    geo.gas.titel <- glue("Verdeling bbp in Europa {keuzejaar}")
+    geo.gas.subtitel <- glue("per hoofd van de bevolking")
+    geo.gas.caption <- glue("Eurostat (2019) Real GDP per capita")
     geo.gas.y.as <- glue("breedtegraad")
     geo.gas.x.as <- glue("lengtegraad")
     
@@ -325,7 +315,7 @@ server <- function(input, output) {
       
       scale_fill_discrete_sequential(name = "Inkomensklassen (EUR)", "ag_GrnYl") +
       
-      theme(legend.position = "left",
+      theme(legend.position = "right",
             legend.title.align = 0) +
       guides(fill = guide_legend(reverse = TRUE)) +
       
@@ -407,7 +397,7 @@ server <- function(input, output) {
     ggplot(lijn.data, aes(x = jaar, y = gdp, colour = gas)) +
       geom_line(size = 1) +
       
-      guides(colour=guide_legend(title="Uitstoot per hoofd (CO2 equivalent)", reverse = TRUE)) +
+      guides(colour=guide_legend(title="Uitstoot gewogen in tonnen aan CO2 equivalent ", reverse = TRUE)) +
       
       # labs aanroepen
       labs(title = lijn.uitstoot.titel,
@@ -430,7 +420,7 @@ server <- function(input, output) {
     dumbell.broeikas.subtitel <- glue("{keuzejaar.min} - {keuzejaar.max}")
     dumbell.broeikas.caption <- glue("Eurostat (2019) Greenhouse gas emissions per capita")
     dumbell.broeikas.y.as <- glue("Landsnamen")
-    dumbell.broeikas.x.as <- glue("Uitstoot broeikasgassen (gemeten in tonnen CO2 equivalent per hoofd)")
+    dumbell.broeikas.x.as <- glue("Uitstoot aan broeikasgassen per hoofd van de bevolking in tonnen CO2 equivalent")
     
     ggplot(dumbell.data,
            aes(
@@ -489,14 +479,12 @@ server <- function(input, output) {
         level = 0.95,
         alpha = 0.5
       ) +
-      
       geom_label_repel(
         aes(label = jaar),
         size = 4,
         box.padding = 0.5,
         segment.color = "blue"
-      ) +
-      bbc_style()
+      )
   })
   
   # correlatie per inkomensklasse
@@ -532,8 +520,7 @@ server <- function(input, output) {
         geom = "polygon",
         level = 0.95,
         alpha = 0.5
-      ) +
-      bbc_style()
+      )
   })
   
   # histgram uitstoot beginjaar
