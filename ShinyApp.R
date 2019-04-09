@@ -117,7 +117,7 @@ ui <- dashboardPage(
                 tabPanel("BBP per hoofd", plotOutput("hist_gdp_max") ),
                 tabPanel("Broeikasgassen per hoofd", plotOutput("hist_gas_max"))
               )
-            )
+            ), fluidRow(box(title = "de bronnenlijst", width=12, verbatimTextOutput("bronnenlijst.hist")))
           ),
     
     
@@ -142,7 +142,8 @@ ui <- dashboardPage(
                   collapsible = TRUE,
                   plotOutput("lijn_gas")
                 )
-              )),
+              ),fluidRow(box(title = "de bronnenlijst", width=12, verbatimTextOutput("bronnenlijst.lijn")))
+              ),
     
     
     # `-------- dumbbells ---------
@@ -156,7 +157,7 @@ ui <- dashboardPage(
                   collapsible = TRUE,
                   plotOutput("dumbell")
                 )
-              )),
+              ),fluidRow(box(title = "de bronnenlijst", width=12, verbatimTextOutput("bronnenlijst.dumbell")))),
     
     
     
@@ -179,7 +180,8 @@ ui <- dashboardPage(
                   collapsible = TRUE,
                   plotOutput("geo_gas_max")
                 )
-              )),
+              ),fluidRow(box(title = "de bronnenlijst", width=12, verbatimTextOutput("bronnenlijst.geo")))
+              ),
     
     
     # `-------- correlaties ---------
@@ -201,7 +203,7 @@ ui <- dashboardPage(
                   collapsible = TRUE,
                   plotOutput("correlatie_gdp")
                 )
-              )
+              ),fluidRow(box(title = "de bronnenlijst", width=12, verbatimTextOutput("bronnenlijst.cor")))
             )
     )
   )
@@ -209,7 +211,41 @@ ui <- dashboardPage(
 
 ##-------------- server --------------
 server <- function(input, output) {
-  
+    output$bronnenlijst.dumbell <- renderText({
+      paste(
+        "Eurostat (2019) Real GDP per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/sdg_08_10",
+        "Eurostat (2019) Greenhouse gas emissions per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/t2020_rd300",
+        sep="\n"
+        )
+    })  
+    output$bronnenlijst.geo <- renderText({
+      paste(
+        "Eurostat (2019) Real GDP per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/sdg_08_10",
+        "Eurostat (2019) Greenhouse gas emissions per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/t2020_rd300",
+        sep="\n"
+        )
+    })  
+    output$bronnenlijst.hist <- renderText({
+      paste(
+        "Eurostat (2019) Real GDP per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/sdg_08_10",
+        "Eurostat (2019) Greenhouse gas emissions per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/t2020_rd300",
+        sep="\n"
+        )
+    }) 
+    output$bronnenlijst.cor <- renderText({
+      paste(
+        "Eurostat (2019) Real GDP per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/sdg_08_10",
+        "Eurostat (2019) Greenhouse gas emissions per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/t2020_rd300",
+        sep="\n"
+        )
+    }) 
+    output$bronnenlijst.lijn <- renderText({
+      paste(
+        "Eurostat (2019) Real GDP per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/sdg_08_10",
+        "Eurostat (2019) Greenhouse gas emissions per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/t2020_rd300",
+        sep="\n"
+        )
+    }) 
   # geodata BBP
   output$geo_gdp_max <- renderPlot({
     klassen <- as.character(input$klassen)
