@@ -217,6 +217,14 @@ server <- function(input, output) {
     map_data_gas <- map_data %>%
       mutate(cat = cut_to_classes(x = gas, n = klassen, style = "quantile"))
     
+    # DUMBELL LABS
+    dumbell.broeikas.titel <- glue("")
+    dumbell.broeikas.subtitel <- glue("")
+    dumbell.broeikas.caption <- glue("Eurostat (2019) Real GDP per capita
+                                      Eurostat (2019) Greenhouse gas emissions per capita")
+    dumbell.broeikas.y.as <- glue("")
+    dumbell.broeikas.x.as <- glue("")
+    
     ggplot(data = map_data_gas) +
       geom_sf(data = geodata_N0,
               fill = "gray85",
@@ -231,19 +239,21 @@ server <- function(input, output) {
         size = 0.703,
         alpha = 0
       ) +
+      
       coord_sf(xlim = c(-25, 45), ylim = c(35, 72)) +
+      
       scale_fill_discrete_sequential(name = "<AANVULLEN>", "ag_GrnYl") +
-      theme(legend.position = "left",
+      
+      theme(legend.position = "right",
             legend.title.align = 0) +
       guides(fill = guide_legend(reverse = TRUE)) +
-      labs(
-        title = paste("<AANVULLEN>"),
-        subtitle = paste("<AANVULLEN>"),
-        caption = "<AANVULLEN>",
-        x = "Lengtegraad",
-        y = "Breedtegraad"
-      ) +
-      bbc_style()
+      
+      # labs aanroepen
+      labs(title = dumbell.broeikas.titel,
+           subtitle = dumbell.broeikas.subtitel,
+           caption = dumbell.broeikas.caption) +
+      xlab(dumbell.broeikas.x.as) + 
+      ylab(dumbell.broeikas.y.as)
   })
   
   # geodata uitstoot
@@ -252,6 +262,14 @@ server <- function(input, output) {
     keuzejaar <- as.character(max(input$keuzejaren))
     map_data_gdp <- map_data %>%
       mutate(cat = cut_to_classes(x = gdp, n = klassen, style = "quantile"))
+    
+    # DUMBELL LABS
+    dumbell.broeikas.titel <- glue("")
+    dumbell.broeikas.subtitel <- glue("")
+    dumbell.broeikas.caption <- glue("Eurostat (2019) Real GDP per capita
+                                     Eurostat (2019) Greenhouse gas emissions per capita")
+    dumbell.broeikas.y.as <- glue("")
+    dumbell.broeikas.x.as <- glue("")
     
     ggplot(data = map_data_gdp) +
       geom_sf(data = geodata_N0,
@@ -274,14 +292,13 @@ server <- function(input, output) {
       theme(legend.position = "left",
             legend.title.align = 0) +
       guides(fill = guide_legend(reverse = TRUE)) +
-      labs(
-        title = paste("<AANVULLEN>"),
-        subtitle = paste("<AANVULLEN>"),
-        caption = "<AANVULLEN>",
-        x = "Lengtegraad",
-        y = "Breedtegraad"
-      ) +
-      bbc_style()
+      
+      # labs aanroepen
+      labs(title = dumbell.broeikas.titel,
+           subtitle = dumbell.broeikas.subtitel,
+           caption = dumbell.broeikas.caption) +
+      xlab(dumbell.broeikas.x.as) + 
+      ylab(dumbell.broeikas.y.as)
   })
   
   # lijngrafiek BBP
@@ -302,10 +319,24 @@ server <- function(input, output) {
       group_by(gdp, jaar) %>%
       summarize(gas = mean(gas)) %>%
       ungroup()
+    
+    # DUMBELL LABS
+    dumbell.broeikas.titel <- glue("")
+    dumbell.broeikas.subtitel <- glue("")
+    dumbell.broeikas.caption <- glue("Eurostat (2019) Real GDP per capita
+                                     Eurostat (2019) Greenhouse gas emissions per capita")
+    dumbell.broeikas.y.as <- glue("")
+    dumbell.broeikas.x.as <- glue("") 
+    
     ggplot(lijn.data, aes(x = jaar, y = gas, colour = gdp)) +
       geom_line(size = 1) +
-      labs(x = "jaren") +
-      bbc_style()
+      
+      # labs aanroepen
+      labs(title = dumbell.broeikas.titel,
+           subtitle = dumbell.broeikas.subtitel,
+           caption = dumbell.broeikas.caption) +
+      xlab(dumbell.broeikas.x.as) + 
+      ylab(dumbell.broeikas.y.as)
   })
   
   # lijngrafiek uitstoot
@@ -326,10 +357,24 @@ server <- function(input, output) {
       group_by(gas, jaar) %>%
       summarize(gdp = mean(gdp)) %>%
       ungroup()
+    
+    # DUMBELL LABS
+    dumbell.broeikas.titel <- glue("")
+    dumbell.broeikas.subtitel <- glue("")
+    dumbell.broeikas.caption <- glue("Eurostat (2019) Real GDP per capita
+                                     Eurostat (2019) Greenhouse gas emissions per capita")
+    dumbell.broeikas.y.as <- glue("")
+    dumbell.broeikas.x.as <- glue("")
+    
     ggplot(lijn.data, aes(x = jaar, y = gdp, colour = gas)) +
       geom_line(size = 1) +
-      labs(x = "jaren") +
-      bbc_style()
+      
+      # labs aanroepen
+      labs(title = dumbell.broeikas.titel,
+           subtitle = dumbell.broeikas.subtitel,
+           caption = dumbell.broeikas.caption) +
+      xlab(dumbell.broeikas.x.as) + 
+      ylab(dumbell.broeikas.y.as)
   })
   
   # dumbbell uitstoot
@@ -344,10 +389,8 @@ server <- function(input, output) {
     dumbell.broeikas.titel <- glue("Ontwikkeling uitstoot broeikasgassen per hoofd bevolking")
     dumbell.broeikas.subtitel <- glue("{keuzejaar.min} - {keuzejaar.max}")
     dumbell.broeikas.caption <- glue("Eurostat (2019) Real GDP per capita")
-    dumbell.broeikas.x.as <- glue("Landsnamen")
-    dumbell.broeikas.y.as <- glue("Uitstoot broeikasgassen (gemeten in tonnen CO2 equivalent)")
-    cat(dumbell.broeikas.x.as)
-    cat("test")
+    dumbell.broeikas.y.as <- glue("Landsnamen")
+    dumbell.broeikas.x.as <- glue("Uitstoot broeikasgassen (gemeten in tonnen CO2 equivalent per hoofd)")
     
     ggplot(dumbell.data,
            aes(
@@ -362,18 +405,29 @@ server <- function(input, output) {
         colour_x = "#FAAB18",
         colour_xend = "#1380A1"
       ) +
+      
+      scale_color_manual(name = "", values = c("orange", "blue") ) +
+      
+      # labs aanroepen
       labs(title = dumbell.broeikas.titel,
            subtitle = dumbell.broeikas.subtitel,
-           caption = dumbell.broeikas.caption,
-           xlab = dumbell.broeikas.x.as,
-           ylab = dumbell.broeikas.y.as) +
-      
-      bbc_style()
+           caption = dumbell.broeikas.caption) +
+      xlab(dumbell.broeikas.x.as) + 
+      ylab(dumbell.broeikas.y.as)
   })
   
   # correlatie per land
   output$correlatie <- renderPlot({
     keuzelanden <- input$keuzelanden
+    
+    # DUMBELL LABS
+    dumbell.broeikas.titel <- glue("")
+    dumbell.broeikas.subtitel <- glue("")
+    dumbell.broeikas.caption <- glue("Eurostat (2019) Real GDP per capita
+                                      Eurostat (2019) Greenhouse gas emissions per capita")
+    dumbell.broeikas.y.as <- glue("")
+    dumbell.broeikas.x.as <- glue("")
+    
     gasGdpCapita %>%
       filter(jaar %in% seq(as.character(min( 
         input$keuzejaren
@@ -409,6 +463,15 @@ server <- function(input, output) {
   
   # correlatie per inkomensklasse
   output$correlatie_gdp <- renderPlot({
+    
+    # DUMBELL LABS
+    dumbell.broeikas.titel <- glue("")
+    dumbell.broeikas.subtitel <- glue("")
+    dumbell.broeikas.caption <- glue("Eurostat (2019) Real GDP per capita
+                                     Eurostat (2019) Greenhouse gas emissions per capita")
+    dumbell.broeikas.y.as <- glue("")
+    dumbell.broeikas.x.as <- glue("")
+    
     gasGdpCapita %>%
       filter(jaar %in% seq(as.character(min(
         input$keuzejaren
@@ -438,6 +501,15 @@ server <- function(input, output) {
   # histgram uitstoot beginjaar
   output$hist_gas_min <- renderPlot({
     keuzejaar.min <- as.character(min(input$keuzejaren))
+    
+    # DUMBELL LABS
+    dumbell.broeikas.titel <- glue("")
+    dumbell.broeikas.subtitel <- glue("")
+    dumbell.broeikas.caption <- glue("Eurostat (2019) Real GDP per capita
+                                     Eurostat (2019) Greenhouse gas emissions per capita")
+    dumbell.broeikas.y.as <- glue("")
+    dumbell.broeikas.x.as <- glue("")
+    
     gasGdpCapita %>%
       mutate(cat_gas = cut_to_classes(gas, input$klassen)) %>%
       filter(jaar == keuzejaar.min) %>%
@@ -456,6 +528,14 @@ server <- function(input, output) {
   output$hist_gas_max <- renderPlot({
     keuzejaar.max <- as.character(max(input$keuzejaren))
     
+    # DUMBELL LABS
+    dumbell.broeikas.titel <- glue("")
+    dumbell.broeikas.subtitel <- glue("")
+    dumbell.broeikas.caption <- glue("Eurostat (2019) Real GDP per capita
+                                     Eurostat (2019) Greenhouse gas emissions per capita")
+    dumbell.broeikas.y.as <- glue("")
+    dumbell.broeikas.x.as <- glue("")
+    
     gasGdpCapita %>%
       mutate(cat_gas = cut_to_classes(gas, input$klassen)) %>%
       filter(jaar == keuzejaar.max) %>%
@@ -473,6 +553,15 @@ server <- function(input, output) {
   # histogram BBP beginjaar
   output$hist_gdp_min <- renderPlot({
     keuzejaar.min <- as.character(min(input$keuzejaren))
+    
+    # DUMBELL LABS
+    dumbell.broeikas.titel <- glue("")
+    dumbell.broeikas.subtitel <- glue("")
+    dumbell.broeikas.caption <- glue("Eurostat (2019) Real GDP per capita
+                                     Eurostat (2019) Greenhouse gas emissions per capita")
+    dumbell.broeikas.y.as <- glue("")
+    dumbell.broeikas.x.as <- glue("")
+    
     gasGdpCapita %>%
       mutate(cat_gdp = cut_to_classes(gdp, input$klassen)) %>%
       filter(jaar == keuzejaar.min) %>%
@@ -490,6 +579,14 @@ server <- function(input, output) {
   # histogram BBP eindjaar
   output$hist_gdp_max <- renderPlot({
     keuzejaar.max <- as.character(max(input$keuzejaren))
+    
+    # DUMBELL LABS
+    dumbell.broeikas.titel <- glue("")
+    dumbell.broeikas.subtitel <- glue("")
+    dumbell.broeikas.caption <- glue("Eurostat (2019) Real GDP per capita
+                                     Eurostat (2019) Greenhouse gas emissions per capita")
+    dumbell.broeikas.y.as <- glue("")
+    dumbell.broeikas.x.as <- glue("")
     
     gasGdpCapita %>%
       mutate(cat_gdp = cut_to_classes(gdp, input$klassen)) %>%
