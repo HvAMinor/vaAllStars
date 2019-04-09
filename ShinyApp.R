@@ -320,23 +320,25 @@ server <- function(input, output) {
       summarize(gas = mean(gas)) %>%
       ungroup()
     
-    # DUMBELL LABS
-    dumbell.broeikas.titel <- glue("")
-    dumbell.broeikas.subtitel <- glue("")
-    dumbell.broeikas.caption <- glue("Eurostat (2019) Real GDP per capita
+    # LIJNGRAFIEK BBP LABS
+    lijn.bbp.titel <- glue("Ontwikkeling uitstoot broeikasgassen per hoofd verdeeld in {klassen} inkomensklassen")
+    lijn.bbp.subtitel <- glue("voor de jaren {keuzejaar.min} - {keuzejaar.max}")
+    lijn.bbp.caption <- glue("Eurostat (2019) Real GDP per capita
                                      Eurostat (2019) Greenhouse gas emissions per capita")
-    dumbell.broeikas.y.as <- glue("")
-    dumbell.broeikas.x.as <- glue("") 
+    lijn.bbp.x.as <- glue("Tijd in jaren")
+    lijn.bbp.y.as <- glue("uitstoot per hoofd (CO2 equivalent)") 
     
     ggplot(lijn.data, aes(x = jaar, y = gas, colour = gdp)) +
       geom_line(size = 1) +
       
+      guides(colour=guide_legend(title="Inkomensklassen (EUR)", reverse = TRUE)) +
+      
       # labs aanroepen
-      labs(title = dumbell.broeikas.titel,
-           subtitle = dumbell.broeikas.subtitel,
-           caption = dumbell.broeikas.caption) +
-      xlab(dumbell.broeikas.x.as) + 
-      ylab(dumbell.broeikas.y.as)
+      labs(title = lijn.bbp.titel,
+           subtitle = lijn.bbp.subtitel,
+           caption = lijn.bbp.caption) +
+      xlab(lijn.bbp.x.as) + 
+      ylab(lijn.bbp.y.as)
   })
   
   # lijngrafiek uitstoot
@@ -358,23 +360,25 @@ server <- function(input, output) {
       summarize(gdp = mean(gdp)) %>%
       ungroup()
     
-    # DUMBELL LABS
-    dumbell.broeikas.titel <- glue("")
-    dumbell.broeikas.subtitel <- glue("")
-    dumbell.broeikas.caption <- glue("Eurostat (2019) Real GDP per capita
-                                     Eurostat (2019) Greenhouse gas emissions per capita")
-    dumbell.broeikas.y.as <- glue("")
-    dumbell.broeikas.x.as <- glue("")
+    # LIJNGRAFIEK BBP LABS
+    lijn.uitstoot.titel <- glue("Ontwikkeling van BBP per hoofd verdeeld in {klassen} klassen uitstoot per hoofd")
+    lijn.uitstoot.subtitel <- glue("voor de jaren {keuzejaar.min} - {keuzejaar.max}")
+    lijn.uitstoot.caption <- glue("Eurostat (2019) Real GDP per capita
+                             Eurostat (2019) Greenhouse gas emissions per capita")
+    lijn.uitstoot.x.as <- glue("Tijd in jaren")
+    lijn.uitstoot.y.as <- glue("Inkomens per hoofd (EUR)")
     
     ggplot(lijn.data, aes(x = jaar, y = gdp, colour = gas)) +
       geom_line(size = 1) +
       
+      guides(colour=guide_legend(title="Uitstoot per hoofd (CO2 equivalent)", reverse = TRUE)) +
+      
       # labs aanroepen
-      labs(title = dumbell.broeikas.titel,
-           subtitle = dumbell.broeikas.subtitel,
-           caption = dumbell.broeikas.caption) +
-      xlab(dumbell.broeikas.x.as) + 
-      ylab(dumbell.broeikas.y.as)
+      labs(title = lijn.uitstoot.titel,
+           subtitle = lijn.uitstoot.subtitel,
+           caption = lijn.uitstoot.caption) +
+      xlab(lijn.uitstoot.x.as) + 
+      ylab(lijn.uitstoot.y.as)
   })
   
   # dumbbell uitstoot
