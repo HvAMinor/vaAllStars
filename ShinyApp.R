@@ -9,6 +9,7 @@ pacman::p_load("extrafont")
 extrafont::font_import(prompt = FALSE, pattern = "*erdana*")
 extrafont::loadfonts(device = "win")
 
+#--------- 1. LIBRARIES INLADEN -------------
 pacman::p_load(
   "rstudioapi",
   "dplyr",
@@ -34,113 +35,93 @@ library(bbplot)
 library(shiny)
 library(shinydashboard)
 
+# 2. CONFIGUREREN VAN DE WORKING DIRECTORY --------------
+
 # the following line is for getting the path of your current open file
 current_path <- getActiveDocumentContext()$path
 # The next line set the working directory to the relevant one:
 setwd(dirname(current_path))
 # you can make sure you are in the right directory
 print(getwd())
-bronnen <-
-  "Eurostat (2019) Real GDP per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/sdg_08_10 \r\nEurostat (2019) Greenhouse gas emissions per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/t2020_rd300"
 
+# 3. BRONNEN - HYPERLINKS --------------------------------
+bronnen <-
+  "Eurostat (2019) Real GDP per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/sdg_08_10 \r\n
+    Eurostat (2019) Greenhouse gas emissions per capita [Data file] Retrieved from: https://ec.europa.eu/eurostat/web/products-datasets/-/t2020_rd300"
+
+metadata <- 
+  "Eurostat (2019) Real GDP per capita [metadata] Retrieved from: https://ec.europa.eu/eurostat/cache/metadata/en/sdg_08_10_esmsip2.htm \r\n
+    Eurostat (2019) Greenhouse gas emissions per capita [metadata] Retrieved from: https://ec.europa.eu/eurostat/cache/metadata/en/t2020_rd300_esmsip2.htm"
+
+# 4. BESTANDEN INLADEN -----------------------------------
 gasGdpCapita <-
-  read.csv(
-    "gasGdpCapita.csv",
-    row.names = "X",
-    header = TRUE,
-    stringsAsFactors = FALSE
-  ) %>%
+  read.csv("gasGdpCapita.csv", row.names = "X", header = TRUE, stringsAsFactors = FALSE) %>%
   mutate(geo = countrycode::countrycode(geo, origin = "eurostat", destination = "country.name"))
 
+# 5. DATASETS AANMAKEN & JOINEN --------------------------
+#dumbbell chart
 dumbell <- gasGdpCapita %>%
   select(geo, jaar, gas) %>%
   spread(jaar, gas, convert = TRUE)
 
-geodata_N0 <- get_eurostat_geospatial(year = "2016",
-                                      nuts_level = 0,
-                                      resolution = "60")
-
-# TOEVOEGEN - COUNTRY
-geodata_N0 <- geodata_N0 %>%
+#geodata
+geodata_N0 <- get_eurostat_geospatial(year = "2016", nuts_level = 0, resolution = "60") %>%
+  # landnamen toevoegen
   mutate(geo = countrycode(
     sourcevar = CNTR_CODE,
     origin = "eurostat",
     destination = "country.name"
   ))
 
-
-# DATASETS JOINEN - geodata_N0, gasGdpCapita
+#datasets joinen - geodata_N0, gasGdpCapita
 map_data <- gasGdpCapita %>%
   inner_join(y = geodata_N0, by = "geo")
 
-
+# 6. SHINY DASHBOARD -------------------------------------
+# 6a. unit interface -------------------------------------
 ui <- dashboardPage(
-  dashboardHeader(disable = TRUE),
+  # 6a1. header ------------------------------------------
+  dashboardHeader(title = "Gemiddeld BBP per hoofd VS uitstoot broeikasgassen per hoofd",
+                  titleWidth = 750),
+  
+  # 6a2. sidebar -----------------------------------------
   dashboardSidebar(
     sidebarMenu(
-      menuItem(text = "de verdeling gdp en gas", tabName = "hist"),
-
-      menuItem(text = "de lijngrafieken", tabName = "lijngrafieken"),
-      menuItem(text = "de dumbell charts", tabName = "dumbells"),
-      menuItem(text = "de geospatiale plots", tabName = "geodata"),
-      menuItem(text = "de correlatie plots", tabName = "correlatie"),
+      menuItem(text = "Verdeling inkomen en uitstoot", tabName = "hist"),
+      menuItem(text = "Lijngrafieken", tabName = "lijngrafieken"),
+      menuItem(text = "Dumbell charts", tabName = "dumbells"),
+      menuItem(text = "Geospatiale plots", tabName = "geodata"),
+      menuItem(text = "Correlatie plots", tabName = "correlatie"),
       
-      sliderInput("keuzejaren", "keuzejaren", 2000, 2016, c(2006, 2016)),
-      selectInput(
-        "klassen",
-        "klassen",
-        choices = seq(2, 8),
-        selected = 3
-      ),
-      selectInput(
-        "keuzelanden",
-        "keuzelanden",
-        choices = unique(gasGdpCapita$geo),
-        multiple = TRUE,
-        selected = c("Netherlands", "Germany")
-      )
+      sliderInput("keuzejaren", "Begin- & eindjaar", 2000, 2016, c(2006, 2016)),
+      selectInput("klassen", "Klassenverdeling", choices = seq(2, 8), selected = 3),
+      selectInput("keuzelanden", "Keuzelanden", choices = unique(gasGdpCapita$geo),
+                  multiple = TRUE, selected = c("Netherlands", "Germany"))
     )
   ),
   ## sidebar close
+  
+  # 6a3. body ---------------------------------------------
   dashboardBody(tabItems(
+    
+    # `-------- histogrammen ---------
     tabItem(tabName = "hist",
             fluidRow(
-              box(
-                width = 6,
-                title = "de gdp verdeling van keuzejaar 1",
-                status = "primary",
-                solidHeader = TRUE,
-                collapsible = TRUE,
-                plotOutput("hist_gdp_min")
+              tabBox(
+                title = "BEGINJAAR",
+                tabPanel("BBP per hoofd", plotOutput("hist_gdp_min") ),
+                tabPanel("Broeikasgassen per hoofd", plotOutput("hist_gas_min"))
               ),
-              box(
-                title = "de uitstoot verdeling van keuzejaar 1",
-                status = "primary",
-                solidHeader = TRUE,
-                width = 6,
-                collapsible = TRUE,
-                plotOutput("hist_gas_min")
+              tabBox(
+                title = "EINDJAAR",
+                tabPanel("BBP per hoofd", plotOutput("hist_gdp_max") ),
+                tabPanel("Broeikasgassen per hoofd", plotOutput("hist_gas_max"))
               )
-            ),
-              fluidRow(
-                box(
-                  title = "de gdp verdeling van keuzejaar 2",
-                  status = "primary",
-                  solidHeader = TRUE,
-                  width = 6,
-                  collapsible = TRUE,
-                  plotOutput("hist_gdp_max")
-                ),
-              box(
-                title = "de uitstoot verdeling van keuzejaar 2",
-                status = "primary",
-                solidHeader = TRUE,
-                width = 6,
-                collapsible = TRUE,
-                plotOutput("hist_gas_max")
-                )
-              )
-            ),
+            )
+          ),
+    
+    
+    # `-------- lijngrafieken ---------
       tabItem(tabName = "lijngrafieken",
               fluidRow(
                 box(
@@ -162,24 +143,31 @@ ui <- dashboardPage(
                   plotOutput("lijn_gas")
                 )
               )),
+    
+    
+    # `-------- dumbbells ---------
       tabItem(tabName = "dumbells",
               fluidRow(
                 box(
                   width = 12,
-                  title = "Ontwikkeling broeikas uitstoot per hoofd",
+                  title = "Ontwikkeling broeikasgas uitstoot per hoofd",
                   status = "primary",
                   solidHeader = TRUE,
                   collapsible = TRUE,
                   plotOutput("dumbell")
                 )
               )),
+    
+    
+    
+    # `-------- geodata ---------
       tabItem(tabName = "geodata",
               fluidRow(
                 box(
                   title = "de geoplot max",
                   status = "primary",
                   solidHeader = TRUE,
-                  width = 4,
+                  width = 6,
                   collapsible = TRUE,
                   plotOutput("geo_gdp_max")
                 ),
@@ -187,36 +175,42 @@ ui <- dashboardPage(
                   title = "de geoplot max",
                   status = "primary",
                   solidHeader = TRUE,
-                  width = 4,
+                  width = 6,
                   collapsible = TRUE,
                   plotOutput("geo_gas_max")
                 )
               )),
+    
+    
+    # `-------- correlaties ---------
       tabItem(tabName = "correlatie",
               fluidRow(
                 box(
-                  title = "correlatie",
+                  title = "Correlatie per land",
                   status = "primary",
                   solidHeader = TRUE,
-                  width = 12,
+                  width = 6,
                   collapsible = TRUE,
                   plotOutput("correlatie")
                 ),
                 box(
-                  title = "correlatie gdp",
+                  title = "Correlatie per inkomensklasse",
                   status = "primary",
                   solidHeader = TRUE,
-                  width = 12,
+                  width = 6,
                   collapsible = TRUE,
                   plotOutput("correlatie_gdp")
                 )
-              ))
+              )
+            )
     )
-  )
   )
 )
 
+##-------------- server --------------
 server <- function(input, output) {
+  
+  # geodata BBP
   output$geo_gdp_max <- renderPlot({
     klassen <- as.character(input$klassen)
     keuzejaar <- as.character(max(input$keuzejaren))
@@ -251,6 +245,8 @@ server <- function(input, output) {
       ) +
       bbc_style()
   })
+  
+  # geodata uitstoot
   output$geo_gas_max <- renderPlot({
     klassen <- as.character(input$klassen)
     keuzejaar <- as.character(max(input$keuzejaren))
@@ -272,7 +268,9 @@ server <- function(input, output) {
         alpha = 0
       ) +
       coord_sf(xlim = c(-25, 45), ylim = c(35, 72)) +
+      
       scale_fill_discrete_sequential(name = "<AANVULLEN>", "ag_GrnYl") +
+      
       theme(legend.position = "left",
             legend.title.align = 0) +
       guides(fill = guide_legend(reverse = TRUE)) +
@@ -286,6 +284,7 @@ server <- function(input, output) {
       bbc_style()
   })
   
+  # lijngrafiek BBP
   output$lijn_gdp <- renderPlot({
     klassen <- as.character(input$klassen)
     keuzejaar.min <- as.character(min(input$keuzejaren))
@@ -308,6 +307,8 @@ server <- function(input, output) {
       labs(x = "jaren") +
       bbc_style()
   })
+  
+  # lijngrafiek uitstoot
   output$lijn_gas <- renderPlot({
     klassen <- as.character(input$klassen)
     keuzejaar.min <- as.character(min(input$keuzejaren))
@@ -331,21 +332,22 @@ server <- function(input, output) {
       bbc_style()
   })
   
+  # dumbbell uitstoot
   output$dumbell <- renderPlot({
     keuzejaar.min <- as.character(min(input$keuzejaren))
     keuzejaar.max <- as.character(max(input$keuzejaren))
-    dumbell.data <-
-      dumbell %>% mutate(gap = dumbell[, keuzejaar.max] - dumbell[, keuzejaar.min]) %>%
+    dumbell.data <- dumbell %>% 
+      mutate(gap = dumbell[, keuzejaar.max] - dumbell[, keuzejaar.min]) %>%
       arrange(desc(gap))
     
     # DUMBELL LABS
-    dumbell.broeikas.titel <-
-      glue(
-        "verandering uitstoot broeikasgassen per hoofd bevolking {keuzejaar.min} - {keuzejaar.max}"
-      )
+    dumbell.broeikas.titel <- glue("Ontwikkeling uitstoot broeikasgassen per hoofd bevolking")
+    dumbell.broeikas.subtitel <- glue("{keuzejaar.min} - {keuzejaar.max}")
+    dumbell.broeikas.caption <- glue("Eurostat (2019) Real GDP per capita")
     dumbell.broeikas.x.as <- glue("Landsnamen")
-    dumbell.broeikas.y.as <-
-      glue("Uitstoot broeikasgassen (gementen in tonnen CO2 equivalent)")
+    dumbell.broeikas.y.as <- glue("Uitstoot broeikasgassen (gemeten in tonnen CO2 equivalent)")
+    cat(dumbell.broeikas.x.as)
+    cat("test")
     
     ggplot(dumbell.data,
            aes(
@@ -360,14 +362,20 @@ server <- function(input, output) {
         colour_x = "#FAAB18",
         colour_xend = "#1380A1"
       ) +
-      labs(title = dumbell.broeikas.titel) +
+      labs(title = dumbell.broeikas.titel,
+           subtitle = dumbell.broeikas.subtitel,
+           caption = dumbell.broeikas.caption,
+           xlab = dumbell.broeikas.x.as,
+           ylab = dumbell.broeikas.y.as) +
+      
       bbc_style()
   })
   
+  # correlatie per land
   output$correlatie <- renderPlot({
     keuzelanden <- input$keuzelanden
     gasGdpCapita %>%
-      filter(jaar %in% seq(as.character(min(
+      filter(jaar %in% seq(as.character(min( 
         input$keuzejaren
       )), as.character(max(
         input$keuzejaren
@@ -398,6 +406,8 @@ server <- function(input, output) {
       ) +
       bbc_style()
   })
+  
+  # correlatie per inkomensklasse
   output$correlatie_gdp <- renderPlot({
     gasGdpCapita %>%
       filter(jaar %in% seq(as.character(min(
@@ -425,6 +435,7 @@ server <- function(input, output) {
       bbc_style()
   })
   
+  # histgram uitstoot beginjaar
   output$hist_gas_min <- renderPlot({
     keuzejaar.min <- as.character(min(input$keuzejaren))
     gasGdpCapita %>%
@@ -440,6 +451,8 @@ server <- function(input, output) {
       labs(title = glue("Verdeling uitstoot broeikasgassen {keuzejaar.min}")) +
       scale_y_continuous(breaks = pretty_breaks())
   })
+  
+  # histogram uitstoot eindjaar
   output$hist_gas_max <- renderPlot({
     keuzejaar.max <- as.character(max(input$keuzejaren))
     
@@ -457,6 +470,7 @@ server <- function(input, output) {
       scale_y_continuous(breaks = pretty_breaks())
   })
   
+  # histogram BBP beginjaar
   output$hist_gdp_min <- renderPlot({
     keuzejaar.min <- as.character(min(input$keuzejaren))
     gasGdpCapita %>%
@@ -472,6 +486,8 @@ server <- function(input, output) {
       labs(title = glue("Verdeling uitstoot broeikasgassen {keuzejaar.min}")) +
       scale_y_continuous(breaks = pretty_breaks())
   })
+  
+  # histogram BBP eindjaar
   output$hist_gdp_max <- renderPlot({
     keuzejaar.max <- as.character(max(input$keuzejaren))
     
