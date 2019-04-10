@@ -1,0 +1,157 @@
+---
+title: "Rmarkdown_Nutbeij_Rudy_&_terBeek_David_Visual_Opdracht_7"
+author: "Rudy Nutbeij & David ter Beek"
+date: "07-04-2019"
+output: 
+        html_document: ## pdf_document 
+          theme: cerulean
+          toc: true
+          number_sections: false
+editor_options: 
+  chunk_output_type: console
+---
+### Deadline
+De deadline voor deze opdracht is:
+
+* Zondag 7 april 23:29
+
+# Initialisatie
+Bij deze laatste opdracht gaan we slechts beperkt aan de slag met *R Markdown*, we zullen hoofdzakelijk gebruik maken van *Shiny*. *R Markdown* wordt alleen gebruikt om de vragen te beantwoorden, de opdrachten worden uitgewerkt in *Shiny* (uiteindelijk worden er 2 files ingeleverd (een *R Markdown* en een *Shiny* file)). *Shiny* is een interactieve (online) omgeving om dashboards te creeeren. Hiermee kunnen interactieve elementen, geintegreerd worden in grafieken, die tijdens het uitlezen 'gemanipuleerd' kunnen worden. De lezers van de grafieken kunnen hierdoor interactief aan de slag met de gepresenteerde informatie. Opdrachtgevers van de projecten, die in het komend blok bij de verschillende tracks betrokken zijn, willen vaak niet zelf gaan programmeren of zeer fundamentele analyses uitvoeren op de datasets waarin ze geinteresseerd zijn, maar wel standaard proceduceres/ analyses loslaten op de desbetreffende datasets.
+
+# Eerste stappen in Shiny
+Sommige studenten in de minor groep hebben al een keer een *Shiny* dashboard gecreeerd, voor hun zal de navolgende informatie dubbelop zijn. Om met *Shiny* aan de slag te kunnen gaan, adviseren we om de volgende [website](https://shiny.rstudio.com/)  te bestuderen. Er is een behoorlijke verscheidenheid aan cursus materiaal aanwezig om met *Shiny* van [start](https://shiny.rstudio.com/tutorial/written-tutorial/lesson1/ ) te gaan. Bestudeer hiervoor zelf het internet. Hint, maak een gezamenlijke database die een ieder via slack kan vinden (pagina met hyperlinks), waarin documentatie over *Shiny* te vinden is.
+
+### Hoofvraag
+
+Tijdens het project in de komende 10 weken, is het de bedoeling om een probleem waar een instelling bedrijf mee zit, op te lossen. Dit probleem zal als 'hoofdvraag' geformuleerd worden, in een zogeheten project plan. Bij deze laatste Visual Analytics opdracht, zal de opdracht op een zelfde wijze geformuleerd worden. 
+
+Welke relaties tussen 2 toc Eurostat dataframe (zie de data die volgt uit `toc <- get_eurostat_toc()`) thema's zijn observeerbaar, als functie van tijd en land binnen de Europese Unie? NB: beperk je tot sets van het type "dataset" en "table".
+
+# Beantwoorden van de hoofdvraag
+
+Om straks tijdens het project, gedurende de komende 10 weken de hoofdvraag te beantwoorden zijn mbv een zogeheten 'pithead' model meerdere deelvragen opgesteld. Deze kunnen nader uitgewerkt worden in subvragen, waarna hypothesis opgesteld zullen worden. Uiteindelijk worden deze hypotheses geherformuleerd in zogeheten krititsche performance indicatoren (KPI's). Bij de volgende opdrachten zullen verschillende KPI's de revue passeren, die samen de hoofdvraag gaan beantwoorden.
+
+### KPI opdrachten
+
+* Construeer een dataframe uit 2 datasets uit dezelfde of verschillende thema's (uit de Eurostat database). Voorwaarde is dat er een connectie moet zijn tussen de datasets, geen appels met peren vergelijken (voorbeeld: koppel niet de spoorweglengte data aan de fertility data). 
+
+Construeer een dashboard met:
+
+* Mogelijkheid om 1-D inspecties uit te voeren.
+* Mogelijkheid om 2-D inspecties te doen (denk zelf na over alle mogelijkheden, denk na over alle mogelijkheden, cross-datasets of binnen een gekozen dataframe).
+* Minstens een geo-spatiale visualisatie.
+* Creeer de mogelijkheid om keuze's uit te voeren, mbt landskeuze en tijd, via "widgets".
+* Besteed aandacht aan de layout en het gebruik van tabbladen (zet niet alles onder elkaar). 
+* Vermeld de bronvermeldingen vd gevonden data (en metadata van Eurostat) in een apart bronvermeldingslijst (met hyperlinks). Die opgesteld is volgens de APA standaard.
+
+### Vraag 1
+
+* Vermoed je dat er verbanden zijn tussen de datasets, hoe worden die duidelijk?
+* Lijkt er sprake van clustervorming?
+* Van welk(e) land(en) was er geen data?
+    * Hoe is dit zichtbaar in de data?
+* Geef enkele plus- en een minpunten van jouw afbeeldingen (1-D en 2-D visualisaties).
+* Beschrijf wat er gebeurd is in de data, gedurende de geprojecteerde tijd en welke trend valt er uit de informatie te halen?
+* Welke verbetering(en) stel je voor met betrekkening tot de gemaakte afbeelding van deze data?
+
+> Jouw antwoord   
+LET OP: voordat u gaat lezen is het van belang één ding te realiseren: alle uitstootgroepen en inkomensgroepen die u tegenkomt in de visualisaties zijn met een gelijk aantal landen verdeeld (style = "quantile"). Wij hebben hiervoor gekozen, omdat dit een duidelijk beeld geeft van de verdeling in Europa.  
+---  
+#1 Ja, er zijn vermoedelijk verbanden tussen het Bruto Binnenlands Product per hoofd bevolking (vanaf nu: "BBPph") en de uitstoot in broeikasgassen per hoofd bevolking (vanaf nu: "Uitstoot"). Wij hebben doormiddel van verschillende visualisaties duidelijk gemaakt dat er verbanden zijn tussen deze twee datasets.  
+Stel zet de klassenverdeling op "3", om te stellen dat wij 3 groepen hebben, laag, middenmoot en hoog en tijd naar 2006 t/m 2016. Open nu de tab "Lijngrafieken" en kijk naar de eerste plot.  Dan is een duidelijk verband te zien dat de laagste inkomensgroep aanzienlijk minder "Uitstoot" produceert, namelijk onder de 10 "Uitstoot". Evenals de hoge inkomensgroepen aanzienlijk meer "Uitstoot" produceren, namelijk boven de 14 "Uitstoot".  
+Eenzelfde conclusie is te nemen voor de tweede afbeelding in de tab "Lijngrafieken". De laagste uitstootgroep heeft het laagste "BBPph", namelijk rond de 20000 EUR "BBPph". En de hoogste uitstootgroep heeft weer het hoogste "BBPph", namelijk rond de 36000 EUR "BBPph".  
+---  
+#2 Open nu de tab "Verdeling inkomen en uitstoot"  
+Een duidelijke clustervorming is te zien in het aantal landen dat zich bevindt in deze lage inkomensgroepen en lage uitstootgroepen. En gelukkig dan ook groter is dan de hoge inkomensgroepen en hoge uitstootgroepen.  
+Er is ook een duidelijke ontwikkeling te zien in de "Uitstoot", als je kijkt naar de jaren 2006 t/m 2016 met een klassenverdeling van 3. De laatste groep die in 2006 nog wel te zien is, 22 ~< 31, is komen te vervallen in 2016. Dat geeft een algemene indruk van de "Uitstoot" van alle landen in de EU. De gemiddelde uitstoot is lager geworden, want de kleinste groep, 4 ~< 13 is groter geworden. En daarmee als we een vergelijking trekken naar "BBPph" zijn de eerste 2 klassen redelijk gelijk gebleven en de hoogste klasse is zelfs groter geworden.  
+Open nu de tab "Geospatiale plots" subtab "BBP per hoofd":  
+Er is een duidelijke clustervorming zichtbaar. In 2006 vallen de noordelijke landen in de hoge inkomensklasse en de laagste in het midden-oosten. In 2016 trekt die hoge inkomensklasse zich iets meer naar het midden van Europa en de rest blijft redelijk gelijk.  
+Open nu de subtab "Broeikasgassen per hoofd":  
+Deze hierboven beschreven clustervorming ontwikkelt zich op een andere in de "Uitstoot". De meeste landen maken een positieve ontwikkeling, dat is te zien doordat in 2016 meer landen 'geel' zijn geworden en minder landen 'donkergroen' zijn gekleurd. Een aantal landen, Ijsland, Ierland, Estland, Nederland en Polen blijven echter 'donkergroen' gekleurd. Noorwegen, Letland, Litouwen en nog een aantal blijven 'geel'.  
+---  
+#3 Open nu de tab "Geospatiale plots"  
+Bij een aantal landen, zoals Bosnië, Montenegro, Servië, en nog een aantal ontbreekt data, dit hebben wij zichtbaar gemaakt door deze landen 'lichtgrijs' te kleuren.  
+---  
+#4 (Aan het einde van dit bestand geef ik voor alle afbeeldingen plus-, min- en verbeterpunten)  
+---  
+#5 Open nu de tab "Dumbell charts" (2006 t/m 2016, klassenverdeling = 3)  
+De afbeelding is zogemaakt dat de landen met de minste progressie (mogelijk zelfs een toename in "Uitstoot"), bovenaan worden geplaatst en vice versa voor de landen met de meeste progressie. Hierdoor is het makkelijk af te lezen welke landen ertussenuit vallen. Het land dat er met kop en voet tussenuit steekt is Luxemburg. Zij zijn van in 2006, iets meer dan 30 "Uitstoot", naar iets minder dan 20 "Uitstoot" in 2016 gegaan. Daar tegenover staan de landen Estland en Letland, die beiden meer "Uitstoot" zijn gaan produceren. Estland is van ongeveer 14 naar 15 "Uitstoot" gegaan en Letland is van ongeveer 3 naar 4 "Uitstoot" gegaan. Ook merkwaardig zijn de landen Litouwen en Ijsland, die hebben van 2006 t/m 2016 eenzelfde "Uitstoot" behouden.  
+(Einde antwoord)
+
+
+
+### Vraag 2
+
+Focus je bij de volgende vragen op: 
+
+* Nederland in 2006 en daarna in 2016
+      * Wat is de toename/ afname van categorie x gedurend deze periode?
+      * In welke klassen valt Nederland, kijkend naar de tweede afbeelding in de tab "Correlatie plots"
+* Duitsland in 2006 en daarna in 2016
+      * Wat is de toename/ afname van categorie x gedurend deze periode?
+      * In welke klassen valt Duitsland, kijkend naar de tweede afbeelding in de tab "Correlatie plots"
+* Formuleer plus-, min- en verbeterpunten van de geospatiale dataset.
+
+> Jouw antwoord   
+#0 Bekijk vóór het beoordelen van deze vragen naar de aanpassing die ik heb gemaakt in de vragen bij ### vraag 2  
+---  
+Nederland:  
+#1 Open nu de tab "Correlatie plots"  (2006 t/m 2016, klassenverdeling = 3, keuzelanden = Netherlands, Germany)  
+Nederland in 2006 produceert 13,5 "Uitstoot" met een "BBPph" van iets meer 37.500 EUR.  
+Nederland in 2016 produceert iets meer dan 12 "Uitstoot" met een "BBPph" van iets minder dan 40.000 EUR.  
+Nederland heeft progressie gemaakt is en naarmate de jaren vorderden minder gaan uitstoten en meer gaan verdienen, per hoofd van de bevolking.  
+---  
+#2 Bekijk nu de tweede afbeelding in de tab "Correlatie plots" (2006 t/m !!2006!!, klassenverdeling = 3)  
+Nederland in 2006 valt in de middenmoot inkomensklassen. In 2006 zijn er maar 3 landen die in hoogste inkomensklassen vallen. Nederland valt hier net buiten, in de middenmoot klassen.  
+---  
+Bekijk nu de tweede afbeelding in de tab "Correlatie plots" (!!2016!! t/m 2016, klassenverdeling = 3)  
+Nederland valt ongeveer in het midden van de inkomensklassen. Zij hebben over de jaren 2006 t/m 2016, in vergelijking met alle andere landen, een gemiddelde positieve ontwikkeling doorstaan.  
+---  
+Duitsland:  
+#1 Duitsland in 2006 produceert iets minder dan 12,5 "Uitstoot" met een "BBPph" van de rond de 31.000 EUR.  
+Duitsland in 2016 produceert iets minder dan 11,5 "Uitstoot" met een "BBPph" van iets minder dan 35.000 EUR.  
+Duitsland heeft evenals Nederland een positieve ontwikkeling meegemaakt. Duitsland is minder gaan "Uitstoot" gaan produceren en heeft een toegenomen "BBBph".  
+---  
+#2 Bekijk nu de tweede afbeelding in de tab "Correlatie plots" (2006 t/m !!2006!!, klassenverdeling = 3)  
+Duitsland in 2006 valt in ook in de middenmoot inkomensklassen. Zij komen zelfs dicht in de buurt van de laagste inkomensklassen en minste "Uitstoot".  
+---  
+Bekijk nu de tweede afbeelding in de tab "Correlatie plots" (!!2016!! t/m 2016, klassenverdeling = 3)  
+Duitsland in 2016 is meer in de middenmoot klassen terechtgekomen en verder van de laagste inkomensverdeling. Zij hebben over de jaren 2006 t/m 2016, in vergelijking met alle andere landen, een ,lager dan gemiddeld, positieve ontwikkeling doorstaan.  
+--------------------------------------------------------------------------------------------------------------------  
+Histogrammen:  
+Pluspunt 1: De verdeling van de groepen(staven) heeft een gelijk aantal landen, dat zorgt voor een duidelijk verdeeldheid.  
+Pluspunt 2: Het aantal landen is in een groep(staaf) is duidelijk af te lezen.  
+Pluspunt 3: De labs geven een duidelijk omschrijving van wat je ziet in de afbeeldingen.  
+Minpunt 1: Je ziet niet welke landen zich in de groep(staaf) bevinden.  
+Verbeterpunt 1: Een extra vak toevoegen met een lijst van welke landen zich in welke groep bevinden.  
+---  
+Lijngrafieken:  
+Pluspunt 1: De afbeelding geeft een zeer duidelijke weergaven van de ontwikkelingen van "Uitstoot" per inkomensklassen (hetzelfde geldt voor afbeelding 2).  
+Pluspunt 2: De verdeling van de inkomensklassen is een zeer eerlijke verdeling, omdat het aantal landen per klassen gelijk is aan elkaar.  
+Minpunt 1: In 2014 lopen de middenmoot en laagste klassen door elkaar heen. Het lastig om te zeggen waar hier dan sprake van is. (Hetzelfde geldt voor de tweede afbeelding jaar 2007).  
+Minpunt 2: Ook hier is niet duidelijk welke landen in welke klassen vallen.  
+Verbeterpunt 1: Een extra vak toevoegen met een lijst van welke landen zich in welke groep bevinden.  
+---  
+Dumbbell charts:  
+Pluspunt 1: Het is makkelijk om te zien welke landen de meeste progressie maken en welke de minste progressie.  
+Minpunt 1: Het is niet direct duidelijk dat de afbeelding de landen met de minste progressie bovenaan plaatst en de landen met de meeste progressie onderaan plaatst.  
+Verbeterpunt 1: Omschrijf in de titel of subtitel dat de grafiek aflopend is basis van de 'gap' die de landen ontwikkelen in de keuzejaren.  
+---  
+Geospatiale plots:  
+Pluspunt 1: Er is een duidelijk kleurenpalette gekozen, wat er zorgt dat de afbeelding direct duidelijkheid geeft over welke landen in welke groep vallen.  
+Pluspunt 2: Het is gemakkelijk om de afbeeldingen met elkaar te vergelijken.  
+Pluspunt 3: Het is duidelijk zichtbaar over welke jaren men spreekt. De input bij Begin- & Eindjaar veranderen mee in de afbeelding.  
+Pluspunt 4: De subtabs maken het geheel goed overzichtelijk.  
+Minpunt 1: Er zijn geen regio's  
+Verbeterpunt 1: Kies een dataset met regio's XD  
+---  
+Correlatie plots:  
+Pluspunt 1: Het is erg fijn dat de jaartallen duidelijk af te lezen zijn.  
+Pluspunt 2: De selectie van landen is volledig aan te passen.  
+Minpunt 1: Afbeelding 1 en 2 zijn lastig met elkaar te vergelijken, omdat de waarden van de assen niet gelijk lopen.  
+Minpunt 2: Je kunt niet in één keer alle landen selecteren, dat moet handmatig per land.  
+Minpunt 3: De exacte waarden van de assen zijn soms lastig af te lezen.  
+Verbeterpunt 1: Het aanpassen van de waarden van de assen voor afbeelding 1.  
+Verbeterpunt 2: Het toevoegen van "selecteer alle landen" bij de inputpanel "Keuzelanden".  
+Verbeterpunt 3: De ticks van de assen aanpassen, zodat er meer ticks zijn. Dat maakt het aflezen makkelijker.  
+(Einde antwoord)
