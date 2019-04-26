@@ -1,0 +1,182 @@
+
+
+# CSV BESTANDEN INLADEN
+```{r chunk_2, echo = TRUE, warning = FALSE, message = FALSE }
+
+# variabelen hebben camelCase en gebruiken een . om de data uniform te groeperen
+
+# GEMIDDELD BRUTO BINNENLANDS PRODUCT PER CAPITA
+gdpPerCapita.code <- search_eurostat('Real GDP per capita',
+                                     type='table')$code[1]
+gdpPerCapita <- get_eurostat(gdpPerCapita.code,
+                             stringsAsFactors = FALSE) %>%
+  mutate(jaar = format(time, '%Y')) %>%
+  filter(unit == 'CLV10_EUR_HAB') %>%
+  dplyr::select(geo, jaar, gdp=values)
+
+# BROEIKASGASSEN PER CAPITA
+gasPerCapita.code <- search_eurostat('Greenhouse gas emissions per capita',
+                                     type='table')$code[1]
+gasPerCapita <- get_eurostat(gasPerCapita.code, 
+                             stringsAsFactors = FALSE) %>% 
+  mutate(jaar = format(time, '%Y')) %>% 
+  dplyr::select(geo, jaar, gas=values)
+
+gasGdpCapita <- inner_join(gasPerCapita, gdpPerCapita) %>%
+  filter(geo != 'EU28') %>%
+  dplyr::select(geo, jaar, gdp, gas) %>%
+  mutate(country = countrycode(sourcevar = geo, # kolom 'country.name
+                               origin = 'eurostat',
+                               destination = 'country.name') )
+
+
+```
+
+# OMSCHRIJVING VAN DE DATA
+```{r chunk_3, echo = TRUE, warning = FALSE, message = FALSE }
+
+```
+
+# GEOSPATIALE DATA INLADEN
+```{r chunk_4, echo = TRUE, warning = FALSE, message = FALSE }
+
+ # DATAFRAME - NUTSLEVEL 0 - JAARTAL 2016
+geodata_N0 <- get_eurostat_geospatial(year = "2016",
+                                      nuts_level = 0,
+                                      resolution = "60")
+
+ # TOEVOEGEN - COUNTRY
+geodata_N0 <- geodata_N0 %>%
+  mutate(country = countrycode(sourcevar = CNTR_CODE,
+                               origin = 'eurostat',
+                               destination = 'country.name') )
+
+
+ # SELECTEREN - GEOMETRY, GEO
+geodata_N0 <- geodata_N0 %>%
+  select("geometry","geo", "country")
+
+
+ # DATASETS JOINEN - geodata_N0, gasGdpCapita
+map_data <- gasGdpCapita %>%
+  inner_join(y = geodata_N0, by = "geo")
+  
+```
+
+# BROEIKASGASSEN PER CAPITA
+```{r chunk_5, echo = TRUE, warning = FALSE, message = FALSE }
+
+ # DATAFRAME MAP_DATA_GDP (KOLOM BRUTO BINNENLANDS PRODUCT PER CAPITA) 
+map_data_gas <- map_data %>%
+  dplyr::select(-gdp) %>%
+  mutate(cat = cut_to_classes(x = gas, 
+                              n = 7,
+                              style = "quantile" ))
+
+
+ # PLOT MAP_DATA_GDP 
+ggplot(data = map_data_gas) +
+  
+  # LANDEN EEN ONDERLIGGENDE GRIJZE KLEUR GEVEN (LANDEN ZONDER DATA WORDEN GRIJS)
+  geom_sf(data = geodata_N0,
+          fill = "gray85",
+          alpha = 1) +
+  
+  # LANDEN KLEUREN OP BASIS VAN CATEGORIE
+  geom_sf(data = map_data_gas[map_data_gas$jaar           %in% c(2010),],
+          aes(fill = cat),
+          color = "gray40",
+          size = 0.2) +
+  
+  # RANDEN VAN LANDEN KLEUREN OP BASIS VAN GRENZEN
+  geom_sf(data = geodata_N0,
+          color = "gray30",
+          size = 0.703,
+          alpha = 0) +
+  
+  # CO?RDINATEN VAN DE MAP VERKLEINEN
+  coord_sf(xlim = c(-25, 45),
+           ylim = c(35, 72)) +
+  
+  # PASSEND KLEURENPALETTE, ZODAT ALLE KLASSEN DUIDELIJK ZICHTBAAR WORDEN
+  scale_fill_discrete_sequential(name = "<AANVULLEN>", "ag_GrnYl") +
+  
+  # POSITIE VAN LEGENDA NAAR LINKS
+  theme(legend.position = "left",
+        legend.title.align = 0) +
+  
+  # VOLGORDE VAN LEGENDA - HOOG > LAAG
+  guides(fill = guide_legend(reverse = TRUE))+
+  
+  # TITEL, ONDERTITEL, CAPTION, X-AS, Y-AS, LEGENDATITEL
+  labs(title = paste("<AANVULLEN>"),
+       subtitle = paste("<AANVULLEN>"),
+       caption = "<AANVULLEN>",
+       x = "Lengtegraad",
+       y = "Breedtegraad")
+
+```
+
+# GEMIDDELD BRUTO BINNENLANDS PRODUCT PER CAPITA
+```{r chunk_6, echo = TRUE, warning = FALSE, message = FALSE }
+ # DATAFRAME MAP_DATA_GDP (KOLOM BRUTO BINNENLANDS PRODUCT PER CAPITA) 
+map_data_gdp <- map_data %>%
+  select(-gas) %>%
+  mutate(cat = cut_to_classes(x = gdp, 
+                              n = 7,
+                              style = "quantile" ))
+
+
+ # PLOT MAP_DATA_GDP
+ggplot(data = map_data_gdp) +
+  
+  # LANDEN EEN ONDERLIGGENDE GRIJZE KLEUR GEVEN (LANDEN ZONDER DATA WORDEN GRIJS)
+  geom_sf(data = geodata_N0,
+          fill = "gray85",
+          alpha = 1) +
+  
+  # LANDEN KLEUREN OP BASIS VAN CATEGORIE
+  geom_sf(data = map_data_gdp[map_data_gdp$jaar           %in% c(2010),],
+          aes(fill = cat),
+          color = "gray40",
+          size = 0.2) +
+  
+  # RANDEN VAN LANDEN KLEUREN OP BASIS VAN GRENZEN
+  geom_sf(data = geodata_N0,
+          color = "gray30",
+          size = 0.703,
+          alpha = 0) +
+  
+  # CO?RDINATEN VAN DE MAP VERKLEINEN
+  coord_sf(xlim = c(-25, 45),
+           ylim = c(35, 72)) +
+  
+  
+  # PASSEND KLEURENPALETTE, ZODAT ALLE KLASSEN DUIDELIJK ZICHTBAAR WORDEN
+  scale_fill_discrete_sequential(name = "<AANVULLEN>", "ag_GrnYl") +
+  
+  # POSITIE VAN LEGENDA NAAR LINKS
+  theme(legend.position = "left",
+        legend.title.align = 0) +
+  
+  # VOLGORDE VAN LEGENDA - HOOG > LAAG
+  guides(fill = guide_legend(reverse = TRUE))+
+  
+  # TITEL, ONDERTITEL, CAPTION, X-AS, Y-AS, LEGENDATITEL
+  labs(title = paste("<AANVULLEN>"),
+       subtitle = paste("<AANVULLEN>"),
+       caption = "<AANVULLEN>",
+       x = "Lengtegraad",
+       y = "Breedtegraad")
+
+
+```
+
+
+
+
+
+
+
+
+
